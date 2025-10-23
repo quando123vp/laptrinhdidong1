@@ -175,6 +175,13 @@
                     android:layout_height="32dp"
                     android:src="@drawable/ic_rain_status"
                     android:contentDescription="Trạng thái Mưa" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thời tiết"
+                    android:textSize="14sp" />
+
                 <TextView
                     android:id="@+id/tv_rain_status"
                     android:layout_width="wrap_content"
