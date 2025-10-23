@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PumpSettingActivity">
+
+    <LinearLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CÀI ĐẶT BƠM NƯỚC"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="32dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bơm Tự Động"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Thời gian muốn bơm:" />
+
+        <Button
+            android:id="@+id/btn_add_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thêm Giờ Bơm" />
+
+        <LinearLayout
+            android:id="@+id/ll_scheduled_times_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:animateLayoutChanges="true"/>
+
+        <TextView
+            android:id="@+id/tv_clear_all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xóa tất cả"
+            android:gravity="end"
+            android:padding="8dp"
+            android:textColor="?attr/colorError"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bơm Thủ Công"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="Độ ẩm đất hiện tại:"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_current_moisture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="-- %"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/et_water_amount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Độ ẩm muốn bơm (%)"
+                android:inputType="number"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btn_manual_pump"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BƠM"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <!-- 💧 Trạng thái bơm -->
+        <TextView
+            android:id="@+id/tv_pump_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#007AFF"
+            android:textStyle="italic"
+            android:gravity="end"
+            android:padding="8dp"
+            android:textSize="15sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>
