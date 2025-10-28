@@ -1,5 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
+
+
+    // Áp dụng Google Services Plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -40,4 +44,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    implementation("com.google.firebase:firebase-database")
 }

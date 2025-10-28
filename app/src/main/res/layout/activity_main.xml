@@ -1,58 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@drawable/bgd"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@drawable/bgd">
 
-    <!-- 🏷️ TIÊU ĐỀ -->
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Hệ Thống Chăm Sóc Vườn Thông Minh - Nhóm 3"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
+        android:text="Hệ Thống Chăm Sóc Vườn Thông Minh-Nhóm 3"
         android:textColor="@color/black"
         android:textSize="17sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 🔍 PHẦN GIÁM SÁT -->
     <TextView
         android:id="@+id/tv_sensor_header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
         android:text="Giám Sát Môi Trường (Thời gian thực)"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="italic"
-        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/tv_title" />
 
-    <!-- 🌿 CÁC CẢM BIẾN -->
     <GridLayout
         android:id="@+id/grid_sensors"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:columnCount="2"
         android:rowCount="2"
+        android:alignmentMode="alignMargins"
+        android:columnOrderPreserved="false"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/tv_sensor_header"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Ô 1: Độ ẩm đất -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
             android:layout_margin="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="4dp">
@@ -60,33 +66,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:gravity="center"
-                android:padding="12dp">
+                android:padding="12dp"
+                android:gravity="center">
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_soil_moisture" />
+                    android:src="@drawable/ic_soil_moisture"
+                    android:contentDescription="Độ ẩm Đất" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Độ ẩm đất"
+                    android:text="Độ ẩm Đất"
                     android:textSize="14sp" />
                 <TextView
                     android:id="@+id/tv_soil_moisture"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="-- %"
-                    android:textSize="16sp"
+                    android:textSize="24sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/holo_blue_dark" />
+                    android:textColor="@color/colorAccent" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Ô 2: Nhiệt độ / Độ ẩm -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
             android:layout_margin="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="4dp">
@@ -94,33 +100,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:gravity="center"
-                android:padding="12dp">
+                android:padding="12dp"
+                android:gravity="center">
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_temperature" />
+                    android:src="@drawable/ic_temperature"
+                    android:contentDescription="Nhiệt độ" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nhiệt độ / Độ ẩm"
+                    android:text="Nhiệt độ/Độ ẩm"
                     android:textSize="14sp" />
                 <TextView
                     android:id="@+id/tv_temp_humid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="-- °C / -- %"
-                    android:textSize="16sp"
+                    android:textSize="24sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/holo_red_dark" />
+                    android:textColor="@color/colorAccent" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Ô 3: Ánh sáng -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
             android:layout_margin="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="4dp">
@@ -128,12 +134,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:gravity="center"
-                android:padding="12dp">
+                android:padding="12dp"
+                android:gravity="center">
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_light_intensity" />
+                    android:src="@drawable/ic_light_intensity"
+                    android:contentDescription="Ánh sáng" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -143,18 +150,17 @@
                     android:id="@+id/tv_light_intensity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="-- lx"
-                    android:textSize="16sp"
+                    android:textSize="24sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/holo_orange_dark" />
+                    android:textColor="@color/colorAccent" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Ô 4: Trạng thái mưa -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
             android:layout_margin="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="4dp">
@@ -162,42 +168,47 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:gravity="center"
-                android:padding="12dp">
+                android:padding="12dp"
+                android:gravity="center">
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_rain_status" />
+                    android:src="@drawable/ic_rain_status"
+                    android:contentDescription="Trạng thái Mưa" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Trạng thái mưa"
+                    android:text="Thời tiết"
                     android:textSize="14sp" />
+
                 <TextView
                     android:id="@+id/tv_rain_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="--"
-                    android:textSize="16sp"
+                    android:textSize="24sp"
                     android:textStyle="bold"
                     android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </GridLayout>
 
-    <!-- ⚙️ PHẦN ĐIỀU KHIỂN -->
     <TextView
         android:id="@+id/tv_control_header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
         android:text="Điều Khiển Thủ Công (Manual Override)"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="italic"
-        app:layout_constraintTop_toBottomOf="@id/grid_sensors"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/grid_sensors" />
 
     <LinearLayout
         android:id="@+id/ll_controls"
@@ -209,59 +220,41 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- 🌊 Bơm nước -->
-        <TextView
-            android:id="@+id/tv_pump_settings"
+        <Switch
+            android:id="@+id/sw_water_pump"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:switchPadding="16dp"
             android:text="Bơm Nước (Tưới)"
-            android:textSize="18sp"
             android:textColor="@color/black"
+            android:textSize="18sp"
             android:textStyle="bold"
-            app:drawableEndCompat="@android:drawable/ic_menu_send"
-            android:drawablePadding="12dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true" />
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-        <!-- 💡 Đèn chiếu sáng -->
-        <TextView
-            android:id="@+id/tv_light_settings"
+        <Switch
+            android:id="@+id/sw_light"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:switchPadding="16dp"
             android:text="Đèn Chiếu Sáng"
-            android:textSize="18sp"
             android:textColor="@color/black"
+            android:textSize="18sp"
             android:textStyle="bold"
-            app:drawableEndCompat="@android:drawable/ic_menu_send"
-            android:drawablePadding="12dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true" />
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-        <!-- ☂️ Mái che -->
-        <TextView
-            android:id="@+id/tv_roof_settings"
+        <Switch
+            android:id="@+id/sw_roof"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:switchPadding="16dp"
             android:text="Mái Che (Đóng/Mở)"
-            android:textSize="18sp"
             android:textColor="@color/black"
+            android:textSize="18sp"
             android:textStyle="bold"
-            app:drawableEndCompat="@android:drawable/ic_menu_send"
-            android:drawablePadding="12dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true" />
-    </LinearLayout>
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
 
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
