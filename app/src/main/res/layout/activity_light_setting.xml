@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF8E1">
+
+    <!-- 🔙 Nút quay lại -->
+    <ImageView
+        android:id="@+id/btnBackLight"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_arrow_back"
+        android:contentDescription="Quay lại"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+
+    <!-- 🔹 Nội dung chính -->
+    <ScrollView
+        android:id="@+id/scrollViewLight"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/btnBackLight"
+        android:layout_marginTop="8dp"
+        android:paddingHorizontal="24dp"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingBottom="24dp">
+
+            <!-- 🏷️ TIÊU ĐỀ -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HỆ THỐNG ĐÈN"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#222222"
+                android:layout_marginBottom="24dp" />
+
+            <!-- 🔘 TRẠNG THÁI ĐÈN -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tvStatusLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trạng thái đèn:"
+                    android:textSize="18sp"
+                    android:textColor="#000000" />
+
+                <Switch
+                    android:id="@+id/swLight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BẬT"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- 🌙 CHẾ ĐỘ TỰ ĐỘNG -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tvAutoMode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Chế độ tự động:"
+                    android:textSize="18sp"
+                    android:textColor="#000000" />
+
+                <Switch
+                    android:id="@+id/swAutoMode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TẮT"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- 🕒 THỜI GIAN BẬT -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thời gian bật:"
+                    android:textSize="18sp"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/tvTimeOn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="2dp"
+                    android:text="06:00"
+                    android:textSize="18sp"
+                    android:gravity="center"
+                    android:textColor="#000000"
+                    android:background="@drawable/bg_time_box"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+            <!-- 🕓 THỜI GIAN TẮT -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thời gian tắt:"
+                    android:textSize="18sp"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/tvTimeOff"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="2dp"
+                    android:text="22:00"
+                    android:textSize="18sp"
+                    android:gravity="center"
+                    android:textColor="#000000"
+                    android:background="@drawable/bg_time_box"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
