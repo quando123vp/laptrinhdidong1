@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E3F2FD">
+
+    <!-- 🔙 Nút back góc trái -->
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:contentDescription="Quay lại"
+        android:focusable="true"
+        android:src="@drawable/ic_arrow_back"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <!-- 🔹 Nội dung chính -->
+    <ScrollView
+        android:id="@+id/scrollViewRoof"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/btnBack"
+        android:layout_marginTop="8dp"
+        android:paddingHorizontal="24dp"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingBottom="24dp">
+
+            <!-- 🏷️ TIÊU ĐỀ -->
+            <TextView
+                android:id="@+id/tvTitleRoof"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HỆ THỐNG MÁI CHE"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#1A237E"
+                android:layout_marginBottom="24dp" />
+
+            <!-- 🔘 TRẠNG THÁI MÁI CHE -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tvRoofStatusLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trạng thái mái che:"
+                    android:textSize="18sp"
+                    android:textColor="#000000" />
+
+                <Switch
+                    android:id="@+id/swRoof"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MỞ"
+                    android:textSize="16sp"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </LinearLayout>
+
+            <!-- 🤖 CHẾ ĐỘ TỰ ĐỘNG -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tvAutoModeRoof"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Chế độ tự động:"
+                    android:textSize="18sp"
+                    android:textColor="#000000" />
+
+                <Switch
+                    android:id="@+id/swAutoModeRoof"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TẮT"
+                    android:textSize="16sp"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </LinearLayout>
+
+            <!-- 🌡️ NGƯỠNG NHIỆT ĐỘ -->
+            <TextView
+                android:id="@+id/tvTempThreshold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ngưỡng nhiệt độ: 30°C"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:layout_marginTop="8dp" />
+
+            <SeekBar
+                android:id="@+id/seekTemp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="50"
+                android:progress="30" />
+
+            <!-- ☀️ NGƯỠNG ÁNH SÁNG -->
+            <TextView
+                android:id="@+id/tvLightThreshold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ngưỡng ánh sáng: 60%"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:layout_marginTop="8dp" />
+
+            <SeekBar
+                android:id="@+id/seekLight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="60" />
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
