@@ -7,7 +7,6 @@ import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,30 +17,26 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    // Khai báo Database Reference (Tham chiếu Cơ sở dữ liệu)
     private DatabaseReference mDatabase;
 
-    // Khai báo các thành phần UI (TextView cho cảm biến)
-    private TextView tvSoilMoisture; // Độ ẩm Đất
-    private TextView tvTempHumid;    // Nhiệt độ/Độ ẩm
-    private TextView tvLightIntensity; // Cường độ Ánh sáng
-    private TextView tvRainStatus;     // Trạng thái Mưa
+    private TextView tvSoilMoisture;
+    private TextView tvTempHumid;
+    private TextView tvLightIntensity;
+    private TextView tvRainStatus;
 
-    // Khai báo các thành phần UI (Switch cho điều khiển)
-    private Switch swWaterPump; // Bơm Nước
-    private Switch swLight;     // Đèn
-    private Switch swRoof;      // Mái Che
+    private Switch swWaterPump;
+    private Switch swLight;
+    private Switch swRoof;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 1. Khởi tạo Firebase
-        // Đảm bảo bạn đã thêm google-services.json và dependencies
+        // 🔥 Khởi tạo Firebase
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        // 2. Liên kết các thành phần UI bằng findViewById
+        // 🧩 Gán UI
         tvSoilMoisture = findViewById(R.id.tv_soil_moisture);
         tvTempHumid = findViewById(R.id.tv_temp_humid);
         tvLightIntensity = findViewById(R.id.tv_light_intensity);
@@ -51,101 +46,108 @@ public class MainActivity extends AppCompatActivity {
         swLight = findViewById(R.id.sw_light);
         swRoof = findViewById(R.id.sw_roof);
 
-        // 3. Đọc dữ liệu cảm biến từ Firebase (Realtime Listener)
+        // Đọc cảm biến
         setupSensorDataListener();
-
-        // 4. Thiết lập sự kiện lắng nghe cho các Switch để GHI dữ liệu lên Firebase
+        // Thiết lập công tắc điều khiển
         setupControlSwitches();
     }
 
     /**
-     * Thiết lập lắng nghe dữ liệu từ Firebase cho các cảm biến.
+     * Lắng nghe dữ liệu từ Firebase Realtime Database
      */
     private void setupSensorDataListener() {
-        // Lắng nghe thay đổi tại nút 'sensors'
+        // 🧠 Lắng nghe dữ liệu cảm biến chung
         mDatabase.child("sensors").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Lấy các giá trị và cập nhật UI
-
-                // Đất
+                // 1️⃣ Độ ẩm đất
                 Long soilMoisture = dataSnapshot.child("soil_moisture").getValue(Long.class);
-                if (soilMoisture != null) {
-                    tvSoilMoisture.setText(soilMoisture + "%");
-                } else {
-                    tvSoilMoisture.setText("N/A");
-                }
+                tvSoilMoisture.setText(soilMoisture != null ? soilMoisture + "%" : "N/A");
 
-                // Nhiệt độ & Độ ẩm
+                // 2️⃣ Nhiệt độ / độ ẩm (chuỗi gộp)
                 String tempHumid = dataSnapshot.child("dht").getValue(String.class);
-                if (tempHumid != null) {
-                    tvTempHumid.setText(tempHumid);
-                } else {
-                    tvTempHumid.setText("N/A");
-                }
+                tvTempHumid.setText(tempHumid != null ? tempHumid : "N/A");
 
-                // Ánh sáng
-                Long lightIntensity = dataSnapshot.child("light_intensity").getValue(Long.class);
-                if (lightIntensity != null) {
-                    tvLightIntensity.setText(lightIntensity + " Lux");
-                } else {
-                    tvLightIntensity.setText("N/A");
-                }
-
-                // Trạng thái Mưa
+                // 3️⃣ Trạng thái mưa
                 String rainStatus = dataSnapshot.child("rain_status").getValue(String.class);
-                if (rainStatus != null) {
-                    tvRainStatus.setText(rainStatus);
-                } else {
-                    tvRainStatus.setText("N/A");
+                tvRainStatus.setText(rainStatus != null ? rainStatus : "N/A");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Lỗi đọc dữ liệu cảm biến: ", error.toException());
+            }
+        });
+
+        // 🆕 ✅ Đọc dữ liệu từ node "CamBien"
+        mDatabase.child("CamBien").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // --- Đọc nhiệt độ & độ ẩm ---
+                    Float nhietDo = snapshot.child("NhietDo").getValue(Float.class);
+                    Float doAm = snapshot.child("DoAm").getValue(Float.class);
+
+                    if (nhietDo != null && doAm != null) {
+                        String text = "🌡 " + nhietDo + "°C  |  💧 " + doAm + "%";
+                        tvTempHumid.setText(text);
+                    }
+
+                    // 🆕 --- Đọc trạng thái ánh sáng ---
+                    DataSnapshot lightSnap = snapshot.child("AnhSang");
+                    if (lightSnap.exists()) {
+                        String trangThai = lightSnap.child("TrangThai").getValue(String.class);
+                        if (trangThai != null) {
+                            tvLightIntensity.setText("💡 " + trangThai);
+                        } else {
+                            tvLightIntensity.setText("N/A");
+                        }
+                    }
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) { // <-- LỖI ĐÃ SỬA TẠI ĐÂY
-                // Xử lý lỗi
-                Log.w(TAG, "Lỗi đọc dữ liệu cảm biến: ", databaseError.toException());
-                tvSoilMoisture.setText("Error");
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Lỗi đọc dữ liệu từ CamBien: ", error.toException());
             }
         });
     }
 
     /**
-     * Thiết lập sự kiện lắng nghe cho các Switch (Đọc và Ghi).
+     * Ghi dữ liệu điều khiển từ app → Firebase
      */
     private void setupControlSwitches() {
-        // ĐỌC trạng thái Bơm Nước từ Firebase (Đảm bảo đồng bộ trạng thái khi app khởi động)
+        // Lắng nghe trạng thái Bơm nước từ Firebase
         mDatabase.child("controls").child("water_pump").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Boolean state = snapshot.getValue(Boolean.class);
                 if (state != null) {
-                    // Vô hiệu hóa listener để tránh vòng lặp khi cập nhật trạng thái
                     swWaterPump.setOnCheckedChangeListener(null);
                     swWaterPump.setChecked(state);
-                    // Kích hoạt lại listener
                     swWaterPump.setOnCheckedChangeListener(controlSwitchListener);
                 }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.w(TAG, "Lỗi đọc trạng thái bơm: ", error.toException());
             }
         });
 
-        // Thiết lập OnCheckedChangeListener cho các Switch điều khiển khác
+        // Lắng nghe các switch khác
         swWaterPump.setOnCheckedChangeListener(controlSwitchListener);
         swLight.setOnCheckedChangeListener(controlSwitchListener);
         swRoof.setOnCheckedChangeListener(controlSwitchListener);
     }
 
-    // Listener chung để ghi trạng thái Switch lên Firebase
+    // Listener ghi trạng thái switch điều khiển lên Firebase
     private final CompoundButton.OnCheckedChangeListener controlSwitchListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             String controlNode = "";
-            int id = buttonView.getId();
 
+            int id = buttonView.getId();
             if (id == R.id.sw_water_pump) {
                 controlNode = "water_pump";
             } else if (id == R.id.sw_light) {
@@ -155,12 +157,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (!controlNode.isEmpty()) {
-                // Khai báo biến final để sử dụng trong lambda (SỬA LỖI LAMBDA)
                 final String nodeKey = controlNode;
-
-                // Ghi trạng thái (true/false) lên node controls/controlNode
                 mDatabase.child("controls").child(nodeKey).setValue(isChecked)
-                        .addOnFailureListener(e -> Log.e(TAG, "Lỗi ghi trạng thái điều khiển " + nodeKey, e));
+                        .addOnFailureListener(e -> Log.e(TAG, "Lỗi ghi trạng thái " + nodeKey, e));
             }
         }
     };
