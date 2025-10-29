@@ -21,7 +21,8 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
 
     private TextView tvSoilMoisture, tvTempHumid, tvLightIntensity, tvRainStatus;
-    private CardView cardSoil, cardTempHumid, cardLight, cardRain;
+    private CardView cardSoil, cardTempHumid, cardLightSensor, cardRain;
+    private CardView cardPump, cardLight, cardRoof; // 🔹 thêm 3 hệ thống điều khiển
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         // 🔥 Kết nối Firebase
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        // 🧩 Liên kết UI
+        // 🧩 Ánh xạ cảm biến
         tvSoilMoisture = findViewById(R.id.tv_soil_moisture);
         tvTempHumid = findViewById(R.id.tv_temp_humid);
         tvLightIntensity = findViewById(R.id.tv_light_intensity);
@@ -39,24 +40,34 @@ public class MainActivity extends AppCompatActivity {
 
         cardSoil = findViewById(R.id.card_soil);
         cardTempHumid = findViewById(R.id.card_temp_humid);
-        cardLight = findViewById(R.id.card_light_sensor);
+        cardLightSensor = findViewById(R.id.card_light_sensor);
         cardRain = findViewById(R.id.card_rain);
 
-        // 📡 Đọc dữ liệu cảm biến
+        // 🧩 Ánh xạ phần điều khiển
+        cardPump = findViewById(R.id.card_pump);
+        cardLight = findViewById(R.id.card_light);
+        cardRoof = findViewById(R.id.card_roof);
+
+        // 📡 Cập nhật dữ liệu cảm biến
         setupSensorListener();
 
-        // 🧭 Mở từng lịch sử riêng
+        // 🧭 Chuyển sang màn hình lịch sử dữ liệu
         cardSoil.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, SoilHistoryActivity.class)));
-
         cardTempHumid.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, TempHumidHistoryActivity.class)));
-
-        cardLight.setOnClickListener(v ->
+        cardLightSensor.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, LightHistoryActivity.class)));
-
         cardRain.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, RainHistoryActivity.class)));
+
+        // ⚙️ Chuyển sang màn hình điều khiển từng hệ thống
+        cardPump.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, PumpSettingActivity.class)));
+        cardLight.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, LightSettingActivity.class)));
+        cardRoof.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, RoofSettingActivity.class)));
     }
 
     private void setupSensorListener() {
