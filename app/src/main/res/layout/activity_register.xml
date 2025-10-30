@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bgd"
+    android:fillViewport="true"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <!-- 🧾 Tiêu đề -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ĐĂNG KÝ TÀI KHOẢN"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="20dp" />
+
+        <!-- 👤 Ô nhập họ tên -->
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Họ và tên"
+            android:inputType="textPersonName"
+            android:backgroundTint="@color/black"
+            android:textColor="@color/black"
+            android:textColorHint="#808080"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 📱 Ô nhập số điện thoại -->
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Số điện thoại"
+            android:inputType="phone"
+            android:backgroundTint="@color/black"
+            android:textColor="@color/black"
+            android:textColorHint="#808080"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 📧 Ô nhập Email -->
+        <EditText
+            android:id="@+id/etNewEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tài khoản (Email)"
+            android:inputType="textEmailAddress"
+            android:backgroundTint="@color/black"
+            android:textColor="@color/black"
+            android:textColorHint="#808080"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 🔒 Ô nhập mật khẩu -->
+        <EditText
+            android:id="@+id/etNewPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mật khẩu"
+            android:inputType="textPassword"
+            android:backgroundTint="@color/black"
+            android:textColor="@color/black"
+            android:textColorHint="#808080"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ✅ Xác nhận mật khẩu -->
+        <EditText
+            android:id="@+id/etConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Xác nhận mật khẩu"
+            android:inputType="textPassword"
+            android:backgroundTint="@color/black"
+            android:textColor="@color/black"
+            android:textColorHint="#808080"
+            android:layout_marginBottom="24dp" />
+
+        <!-- 🟣 Nút Đăng ký -->
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đăng Ký"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#6C63FF"
+            android:layout_marginBottom="20dp"
+            android:padding="10dp" />
+
+        <!-- 🔙 Link quay lại đăng nhập -->
+        <TextView
+            android:id="@+id/tvBackToLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đã có tài khoản? Đăng nhập"
+            android:textColor="#2962FF"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            android:layout_marginBottom="30dp" />
+
+    </LinearLayout>
+</ScrollView>

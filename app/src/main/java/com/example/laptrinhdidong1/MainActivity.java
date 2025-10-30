@@ -15,18 +15,23 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+
+    // Firebase
     private DatabaseReference mDatabase;
 
-    private TextView tvSoilMoisture, tvTempHumid, tvLightIntensity, tvRainStatus;
-    private CardView cardSoil, cardTempHumid, cardLightSensor, cardRain;
-    private CardView cardPump, cardLight, cardRoof;
+    // Cảm biến
+    private TextView tvSoilMoisture;
+    private TextView tvTempHumid;
+    private TextView tvLightIntensity;
+    private TextView tvRainStatus;
+
+    // CardView điều hướng
+    private CardView cardPump;
+    private CardView cardLight;
+    private CardView cardRoof;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,109 +41,83 @@ public class MainActivity extends AppCompatActivity {
         // 🔥 Kết nối Firebase
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        // 🧩 Ánh xạ cảm biến
+        // 🧩 Liên kết UI
         tvSoilMoisture = findViewById(R.id.tv_soil_moisture);
         tvTempHumid = findViewById(R.id.tv_temp_humid);
         tvLightIntensity = findViewById(R.id.tv_light_intensity);
         tvRainStatus = findViewById(R.id.tv_rain_status);
 
-        cardSoil = findViewById(R.id.card_soil);
-        cardTempHumid = findViewById(R.id.card_temp_humid);
-        cardLightSensor = findViewById(R.id.card_light_sensor);
-        cardRain = findViewById(R.id.card_rain);
-
-        // 🧩 Ánh xạ phần điều khiển
         cardPump = findViewById(R.id.card_pump);
         cardLight = findViewById(R.id.card_light);
         cardRoof = findViewById(R.id.card_roof);
 
-        // 📡 Cập nhật dữ liệu cảm biến realtime
-        setupSensorListener();
+        // 📡 Đọc dữ liệu cảm biến từ Firebase
+        setupSensorDataListener();
 
-        // 🧭 Chuyển sang các màn hình khác
-        cardSoil.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, SoilHistoryActivity.class)));
-        cardTempHumid.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, TempHumidHistoryActivity.class)));
-        cardLightSensor.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, LightHistoryActivity.class)));
-        cardRain.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, RainHistoryActivity.class)));
-
-        // ⚙️ Điều khiển thiết bị
-        cardPump.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, PumpSettingActivity.class)));
-        cardLight.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, LightSettingActivity.class)));
-        cardRoof.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, RoofSettingActivity.class)));
+        // 🧭 Thiết lập điều hướng khi nhấn các CardView
+        setupNavigationCards();
     }
 
-    // ==========================
-    // 📡 LẮNG NGHE & GHI LỊCH SỬ
-    // ==========================
-    private void setupSensorListener() {
+    /**
+     * 📡 Đọc dữ liệu cảm biến từ Firebase
+     */
+    private void setupSensorDataListener() {
         mDatabase.child("CamBien").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()) return;
 
-                // ✅ Đọc giá trị từ Firebase
+                // 🔸 Đọc nhiệt độ & độ ẩm
                 Float nhietDo = snapshot.child("NhietDo").getValue(Float.class);
                 Float doAm = snapshot.child("DoAm").getValue(Float.class);
-                Long doAmDat = snapshot.child("DoAmDat").getValue(Long.class);
-                String sang = snapshot.child("AnhSang/TrangThai").getValue(String.class);
-                Long phanTramSang = snapshot.child("AnhSang/PhanTram").getValue(Long.class);
-
-                // 🌧️ Cảm biến mưa (đọc từ nhánh mới)
-                String rainStatus = snapshot.child("Mua/TrangThai").getValue(String.class);
-                Long rainAnalog = snapshot.child("Mua/Analog").getValue(Long.class);
-                Long rainDigital = snapshot.child("Mua/Digital").getValue(Long.class);
-
-                // 🔹 Hiển thị realtime lên UI
-                tvTempHumid.setText((nhietDo != null && doAm != null)
-                        ? String.format(Locale.getDefault(), "%.1f°C | %.1f%%", nhietDo, doAm)
-                        : "--°C | --%");
-                tvSoilMoisture.setText(doAmDat != null ? doAmDat + "%" : "--%");
-                tvLightIntensity.setText(sang != null ? sang : "--");
-                tvRainStatus.setText(rainStatus != null ? rainStatus : "--");
-
-                // 🕒 Ghi thời gian thực
-                String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
-                        .format(new Date());
-
-                // 🌿 Ghi lịch sử cảm biến
-                DatabaseReference lichSuRef = mDatabase.child("LichSuApp");
-
-                // 🌡️ Lưu lịch sử nhiệt độ & độ ẩm không khí
                 if (nhietDo != null && doAm != null) {
-                    DatabaseReference node = lichSuRef.child("NhietDo_DoAm").child(timestamp);
-                    node.child("NhietDo").setValue(nhietDo);
-                    node.child("DoAm").setValue(doAm);
+                    tvTempHumid.setText(nhietDo + "°C | " + doAm + "%");
                 }
 
-                // ☀️ Lưu lịch sử ánh sáng
-                if (sang != null && phanTramSang != null) {
-                    DatabaseReference node = lichSuRef.child("AnhSang").child(timestamp);
-                    node.child("TrangThai").setValue(sang);
-                    node.child("PhanTram").setValue(phanTramSang);
+                // 🔸 Đọc ánh sáng
+                DataSnapshot lightSnap = snapshot.child("AnhSang");
+                if (lightSnap.exists()) {
+                    String trangThai = lightSnap.child("TrangThai").getValue(String.class);
+                    tvLightIntensity.setText(trangThai != null ? "" + trangThai : "N/A");
                 }
 
-                // 🌧️ Lưu lịch sử cảm biến mưa
-                if (rainStatus != null) {
-                    DatabaseReference node = lichSuRef.child("Mua").child(timestamp);
-                    node.child("TrangThai").setValue(rainStatus);
-                    if (rainAnalog != null) node.child("Analog").setValue(rainAnalog);
-                    if (rainDigital != null) node.child("Digital").setValue(rainDigital);
+                // 🔸 Đọc độ ẩm đất
+                Long doAmDat = snapshot.child("DoAmDat").getValue(Long.class);
+                if (doAmDat != null) {
+                    tvSoilMoisture.setText(doAmDat + "%");
                 }
 
-                Log.d(TAG, "📜 Ghi lịch sử thành công tại " + timestamp);
+                // 🔸 Đọc trạng thái mưa
+                String trangThaiMua = snapshot.child("TrangThaiMua").getValue(String.class);
+                if (trangThaiMua != null) {
+                    tvRainStatus.setText(trangThaiMua);
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "❌ Lỗi đọc Firebase: ", error.toException());
+                Log.w(TAG, "❌ Lỗi đọc Firebase: ", error.toException());
             }
+        });
+    }
+
+    /**
+     * 🧭 Khi nhấn vào CardView → chuyển sang Activity tương ứng
+     */
+    private void setupNavigationCards() {
+        cardPump.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, PumpSettingActivity.class));
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        });
+
+        cardLight.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, LightSettingActivity.class));
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        });
+
+        cardRoof.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, RoofSettingActivity.class));
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         });
     }
 }

@@ -49,9 +49,29 @@
             android:name=".RainHistoryActivity"
             android:exported="false" />
 
-        <!-- 🏠 Màn hình chính -->
+        <!-- 🏠 Giao diện chính -->
         <activity
             android:name=".MainActivity"
+            android:exported="false" />
+
+        <!-- 👤 Hồ sơ cá nhân -->
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+
+        <!-- 🛠️ Cập nhật thông tin cá nhân -->
+        <activity
+            android:name=".UpdateProfileActivity"
+            android:exported="false" />
+
+        <!-- 🆕 Giao diện đăng ký -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <!-- 🔑 Giao diện đăng nhập (mở đầu tiên khi chạy app) -->
+        <activity
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -60,5 +80,4 @@
         </activity>
 
     </application>
-
 </manifest>

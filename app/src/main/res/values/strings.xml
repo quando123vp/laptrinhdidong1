@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">GardenControllerApp</string>
+
+    <!-- 🧭 Cho Navigation Drawer -->
+    <string name="navigation_drawer_open">Mở menu</string>
+    <string name="navigation_drawer_close">Đóng menu</string>
 </resources>
