@@ -20,37 +20,51 @@ public class LightHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_light_history);
 
+        // 🔗 Ánh xạ view
         llContainer = findViewById(R.id.ll_light_history);
         btnBack = findViewById(R.id.btnBackLight);
-        db = FirebaseDatabase.getInstance().getReference();
 
+        // 🔥 Kết nối đúng node "LichSu"
+        db = FirebaseDatabase.getInstance().getReference("LichSu");
+
+        // 🔙 Nút quay lại
         btnBack.setOnClickListener(v -> onBackPressed());
+
+        // 📜 Tải lịch sử
         loadHistory();
     }
 
     private void loadHistory() {
-        db.child("LichSuCamBien").child("AnhSang")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        llContainer.removeAllViews();
-                        if (!snapshot.exists()) {
-                            addText("⚠️ Chưa có dữ liệu ánh sáng");
-                            return;
-                        }
+        db.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                llContainer.removeAllViews();
 
-                        for (DataSnapshot child : snapshot.getChildren()) {
-                            String time = child.child("ThoiGian").getValue(String.class);
-                            String trangThai = String.valueOf(child.child("TrangThai").getValue());
-                            addText("⏱ " + time + " → " + trangThai);
-                        }
-                    }
+                if (!snapshot.exists()) {
+                    addText("⚠️ Chưa có dữ liệu ánh sáng");
+                    return;
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(LightHistoryActivity.this, "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
+                // Duyệt qua từng bản ghi thời gian
+                for (DataSnapshot timeSnap : snapshot.getChildren()) {
+                    String time = timeSnap.getKey();
+
+                    String trangThai = timeSnap.child("AnhSang/TrangThai").getValue(String.class);
+                    Integer phanTram = timeSnap.child("AnhSang/PhanTram").getValue(Integer.class);
+
+                    if (trangThai != null) {
+                        String text = "⏱ " + time + " → " + trangThai;
+                        if (phanTram != null) text += " (" + phanTram + "%)";
+                        addText(text);
                     }
-                });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(LightHistoryActivity.this, "❌ Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void addText(String text) {

@@ -15,6 +15,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -22,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tvSoilMoisture, tvTempHumid, tvLightIntensity, tvRainStatus;
     private CardView cardSoil, cardTempHumid, cardLightSensor, cardRain;
-    private CardView cardPump, cardLight, cardRoof; // 🔹 thêm 3 hệ thống điều khiển
+    private CardView cardPump, cardLight, cardRoof;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +52,10 @@ public class MainActivity extends AppCompatActivity {
         cardLight = findViewById(R.id.card_light);
         cardRoof = findViewById(R.id.card_roof);
 
-        // 📡 Cập nhật dữ liệu cảm biến
+        // 📡 Cập nhật dữ liệu cảm biến realtime
         setupSensorListener();
 
-        // 🧭 Chuyển sang màn hình lịch sử dữ liệu
+        // 🧭 Chuyển sang các màn hình khác
         cardSoil.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, SoilHistoryActivity.class)));
         cardTempHumid.setOnClickListener(v ->
@@ -61,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         cardRain.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, RainHistoryActivity.class)));
 
-        // ⚙️ Chuyển sang màn hình điều khiển từng hệ thống
+        // ⚙️ Điều khiển thiết bị
         cardPump.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, PumpSettingActivity.class)));
         cardLight.setOnClickListener(v ->
@@ -70,29 +74,70 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, RoofSettingActivity.class)));
     }
 
+    // ==========================
+    // 📡 LẮNG NGHE & GHI LỊCH SỬ
+    // ==========================
     private void setupSensorListener() {
         mDatabase.child("CamBien").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()) return;
 
+                // ✅ Đọc giá trị từ Firebase
                 Float nhietDo = snapshot.child("NhietDo").getValue(Float.class);
                 Float doAm = snapshot.child("DoAm").getValue(Float.class);
                 Long doAmDat = snapshot.child("DoAmDat").getValue(Long.class);
-                String mua = snapshot.child("TrangThaiMua").getValue(String.class);
                 String sang = snapshot.child("AnhSang/TrangThai").getValue(String.class);
+                Long phanTramSang = snapshot.child("AnhSang/PhanTram").getValue(Long.class);
 
+                // 🌧️ Cảm biến mưa (đọc từ nhánh mới)
+                String rainStatus = snapshot.child("Mua/TrangThai").getValue(String.class);
+                Long rainAnalog = snapshot.child("Mua/Analog").getValue(Long.class);
+                Long rainDigital = snapshot.child("Mua/Digital").getValue(Long.class);
+
+                // 🔹 Hiển thị realtime lên UI
                 tvTempHumid.setText((nhietDo != null && doAm != null)
-                        ? String.format("%.1f°C | %.1f%%", nhietDo, doAm)
+                        ? String.format(Locale.getDefault(), "%.1f°C | %.1f%%", nhietDo, doAm)
                         : "--°C | --%");
                 tvSoilMoisture.setText(doAmDat != null ? doAmDat + "%" : "--%");
                 tvLightIntensity.setText(sang != null ? sang : "--");
-                tvRainStatus.setText(mua != null ? mua : "--");
+                tvRainStatus.setText(rainStatus != null ? rainStatus : "--");
+
+                // 🕒 Ghi thời gian thực
+                String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
+                        .format(new Date());
+
+                // 🌿 Ghi lịch sử cảm biến
+                DatabaseReference lichSuRef = mDatabase.child("LichSuApp");
+
+                // 🌡️ Lưu lịch sử nhiệt độ & độ ẩm không khí
+                if (nhietDo != null && doAm != null) {
+                    DatabaseReference node = lichSuRef.child("NhietDo_DoAm").child(timestamp);
+                    node.child("NhietDo").setValue(nhietDo);
+                    node.child("DoAm").setValue(doAm);
+                }
+
+                // ☀️ Lưu lịch sử ánh sáng
+                if (sang != null && phanTramSang != null) {
+                    DatabaseReference node = lichSuRef.child("AnhSang").child(timestamp);
+                    node.child("TrangThai").setValue(sang);
+                    node.child("PhanTram").setValue(phanTramSang);
+                }
+
+                // 🌧️ Lưu lịch sử cảm biến mưa
+                if (rainStatus != null) {
+                    DatabaseReference node = lichSuRef.child("Mua").child(timestamp);
+                    node.child("TrangThai").setValue(rainStatus);
+                    if (rainAnalog != null) node.child("Analog").setValue(rainAnalog);
+                    if (rainDigital != null) node.child("Digital").setValue(rainDigital);
+                }
+
+                Log.d(TAG, "📜 Ghi lịch sử thành công tại " + timestamp);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Lỗi đọc Firebase", error.toException());
+                Log.e(TAG, "❌ Lỗi đọc Firebase: ", error.toException());
             }
         });
     }
