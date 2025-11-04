@@ -1,109 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF9E9"
-    android:padding="16dp">
+    android:background="#FFF9E9">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <!-- 🔙 Nút quay lại -->
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_arrow_back"
+        android:contentDescription="Quay lại"
+        android:padding="6dp"
+        android:elevation="4dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        app:tint="#6A5ACD" />
+
+    <!-- Phần nội dung cuộn -->
+    <ScrollView
+        android:id="@+id/scrollContent"
+        android:layout_below="@id/btnBack"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal">
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-        <!-- Ảnh đại diện + nút cập nhật -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="16dp">
-
-            <ImageView
-                android:id="@+id/imgAvatar"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/circle_bg"
-                android:scaleType="centerCrop"
-                android:clickable="true"
-                android:focusable="true"/>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/icEdit"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:tint="#6A5ACD"
-                    android:src="@drawable/ic_edit" />
-
-                <TextView
-                    android:id="@+id/btnUpdate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cập nhật"
-                    android:textColor="#6A5ACD"
-                    android:textStyle="bold"
-                    android:layout_marginStart="4dp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Thông tin cá nhân -->
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="12dp">
+            android:gravity="center_horizontal">
 
-            <TextView
-                android:text="Họ và tên:"
-                android:textStyle="bold"
+            <!-- Ảnh đại diện + nút cập nhật -->
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/tvName"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp">
+
+                <ImageView
+                    android:id="@+id/imgAvatar"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/circle_bg"
+                    android:scaleType="centerCrop"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/icEdit"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_edit"
+                        app:tint="#6A5ACD" />
+
+                    <TextView
+                        android:id="@+id/btnUpdate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sửa"
+                        android:textColor="#6A5ACD"
+                        android:textStyle="bold"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Thông tin cá nhân -->
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp" />
+                android:layout_marginTop="20dp"
+                android:padding="12dp"
+                android:background="@drawable/rounded_card_bg">
 
+                <TextView
+                    android:text="Họ và tên:"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp" />
+
+                <TextView
+                    android:text="Số điện thoại:"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tvPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp" />
+
+                <TextView
+                    android:text="Giới tính:"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tvGender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp" />
+
+                <TextView
+                    android:text="Ngày sinh:"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tvBirthday"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp" />
+            </LinearLayout>
+
+            <!-- 🔴 Nút đăng xuất -->
             <TextView
-                android:text="Số điện thoại:"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/tvPhone"
+                android:id="@+id/tvLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp" />
-
-            <TextView
-                android:text="Giới tính:"
+                android:text="Đăng xuất"
+                android:textColor="#FFFFFF"
                 android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/tvGender"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="8dp" />
+                android:gravity="center"
+                android:paddingVertical="14dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/rounded_button_bg_red"
+                android:clickable="true"
+                android:focusable="true" />
 
-            <TextView
-                android:text="Ngày sinh:"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/tvBirthday"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="8dp" />
         </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</RelativeLayout>

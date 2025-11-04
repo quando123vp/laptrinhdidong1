@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.laptrinhdidong1">
 
+    <!-- 📸 Quyền truy cập ảnh trên các phiên bản Android -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,61 +18,6 @@
         android:theme="@style/Theme.Laptrinhdidong1"
         tools:targetApi="31">
 
-        <!-- 💧 Bơm nước -->
-        <activity
-            android:name=".PumpSettingActivity"
-            android:exported="false" />
-
-        <!-- 💡 Đèn chiếu sáng -->
-        <activity
-            android:name=".LightSettingActivity"
-            android:exported="false" />
-
-        <!-- ☂️ Mái che -->
-        <activity
-            android:name=".RoofSettingActivity"
-            android:exported="false" />
-
-        <!-- 🌱 Lịch sử độ ẩm đất -->
-        <activity
-            android:name=".SoilHistoryActivity"
-            android:exported="false" />
-
-        <!-- 🌡️ Lịch sử nhiệt độ / độ ẩm -->
-        <activity
-            android:name=".TempHumidHistoryActivity"
-            android:exported="false" />
-
-        <!-- ☀️ Lịch sử ánh sáng -->
-        <activity
-            android:name=".LightHistoryActivity"
-            android:exported="false" />
-
-        <!-- 🌧️ Lịch sử thời tiết -->
-        <activity
-            android:name=".RainHistoryActivity"
-            android:exported="false" />
-
-        <!-- 🏠 Giao diện chính -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-
-        <!-- 👤 Hồ sơ cá nhân -->
-        <activity
-            android:name=".ProfileActivity"
-            android:exported="false" />
-
-        <!-- 🛠️ Cập nhật thông tin cá nhân -->
-        <activity
-            android:name=".UpdateProfileActivity"
-            android:exported="false" />
-
-        <!-- 🆕 Giao diện đăng ký -->
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-
         <!-- 🔑 Giao diện đăng nhập (mở đầu tiên khi chạy app) -->
         <activity
             android:name=".LoginActivity"
@@ -79,5 +28,37 @@
             </intent-filter>
         </activity>
 
+        <!-- 🆕 Giao diện đăng ký -->
+        <activity android:name=".RegisterActivity" android:exported="true" />
+
+        <!-- 👤 Hồ sơ cá nhân -->
+        <activity android:name=".ProfileActivity" android:exported="true" />
+
+        <!-- 🛠️ Cập nhật thông tin cá nhân -->
+        <activity android:name=".UpdateProfileActivity" android:exported="true" />
+
+        <!-- 💧 Bơm nước -->
+        <activity android:name=".PumpSettingActivity" android:exported="true" />
+
+        <!-- 💡 Đèn chiếu sáng -->
+        <activity android:name=".LightSettingActivity" android:exported="true" />
+
+        <!-- ☂️ Mái che -->
+        <activity android:name=".RoofSettingActivity" android:exported="true" />
+
+        <!-- 🌡️ Lịch sử nhiệt độ / độ ẩm -->
+        <activity android:name=".TempHumidHistoryActivity" android:exported="true" />
+
+        <!-- 🌱 Lịch sử độ ẩm đất -->
+        <activity android:name=".SoilHistoryActivity" android:exported="true" />
+
+        <!-- ☀️ Lịch sử ánh sáng -->
+        <activity android:name=".LightHistoryActivity" android:exported="true" />
+
+        <!-- 🌧️ Lịch sử thời tiết -->
+        <activity android:name=".RainHistoryActivity" android:exported="true" />
+
+        <!-- 🏠 Giao diện chính -->
+        <activity android:name=".MainActivity" android:exported="true" />
     </application>
 </manifest>

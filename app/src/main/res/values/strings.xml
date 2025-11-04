@@ -4,4 +4,8 @@
     <!-- 🧭 Cho Navigation Drawer -->
     <string name="navigation_drawer_open">Mở menu</string>
     <string name="navigation_drawer_close">Đóng menu</string>
+    <string name="menu_title">⚙️ CÀI ĐẶT</string>
+    <string name="menu_info">Thông tin</string>
+    <string name="menu_about">Giới thiệu</string>
+    <string name="menu_account">Tài khoản</string>
 </resources>
