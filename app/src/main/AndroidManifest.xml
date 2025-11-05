@@ -60,5 +60,6 @@
 
         <!-- 🏠 Giao diện chính -->
         <activity android:name=".MainActivity" android:exported="true" />
+
     </application>
 </manifest>

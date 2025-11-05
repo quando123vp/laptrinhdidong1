@@ -7,13 +7,14 @@ import androidx.cardview.widget.CardView;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -29,36 +30,34 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private DatabaseReference mDatabase;
-
-    // Firebase user info
     private FirebaseAuth mAuth;
     private DatabaseReference userRef;
     private String userId;
 
-    // Sensors
+    // 🔹 Giao diện cảm biến
     private TextView tvSoilMoisture, tvTempHumid, tvLightIntensity, tvRainStatus;
     private CardView cardSoil, cardTempHumid, cardLight, cardRain;
     private CardView cardPump, cardLightControl, cardRoof;
+    private ImageView btnSettings;
 
-    // 🖼️ Avatar (thay icon settings)
-    private ImageView btnSettings; // Giữ nguyên tên để không phải đổi nhiều
-    private LinearLayout settingsMenuPanel;
+    // ⚙️ Menu cài đặt
+    private RelativeLayout settingsMenuPanel;
     private View dimBackground;
-    private boolean isMenuOpen = false;
     private View menuView;
+    private boolean isMenuOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        // Firebase setup
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser == null) {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
@@ -66,50 +65,40 @@ public class MainActivity extends AppCompatActivity {
         userId = currentUser.getUid();
         userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId);
 
-        // Ánh xạ cảm biến
+        // 🔹 Ánh xạ view
         tvSoilMoisture = findViewById(R.id.tv_soil_moisture);
         tvTempHumid = findViewById(R.id.tv_temp_humid);
         tvLightIntensity = findViewById(R.id.tv_light_intensity);
         tvRainStatus = findViewById(R.id.tv_rain_status);
-
         cardSoil = findViewById(R.id.card_soil);
         cardTempHumid = findViewById(R.id.card_temp_humid);
         cardLight = findViewById(R.id.card_light_sensor);
         cardRain = findViewById(R.id.card_rain);
-
         cardPump = findViewById(R.id.card_pump);
         cardLightControl = findViewById(R.id.card_light);
         cardRoof = findViewById(R.id.card_roof);
-
-        // ⚙️ Avatar người dùng (thay cho nút setting)
         btnSettings = findViewById(R.id.btn_settings);
 
-        // 🧠 Load avatar và lắng nghe thay đổi
+        // 🧠 Load avatar người dùng
         loadUserAvatar();
         userRef.child("avatarLocalPath").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                loadUserAvatar();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) { loadUserAvatar(); }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
 
-        // Menu setup
         setupSettingsMenu();
         setupSensorDataListener();
         setupNavigationCards();
     }
 
-    /** 🧠 Load ảnh đại diện user thay cho icon setting */
+    /** 🧠 Load avatar user từ Firebase/local path */
     private void loadUserAvatar() {
         userRef.child("avatarLocalPath").get().addOnSuccessListener(snapshot -> {
             String localPath = snapshot.getValue(String.class);
             if (localPath != null && !localPath.isEmpty()) {
                 File file = new File(localPath);
                 if (file.exists()) {
-                    Glide.with(MainActivity.this)
+                    Glide.with(this)
                             .load(Uri.fromFile(file))
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
                             .skipMemoryCache(true)
@@ -117,16 +106,12 @@ public class MainActivity extends AppCompatActivity {
                             .placeholder(R.drawable.ic_user_default)
                             .error(R.drawable.ic_user_default)
                             .into(btnSettings);
-                } else {
-                    btnSettings.setImageResource(R.drawable.ic_user_default);
-                }
-            } else {
-                btnSettings.setImageResource(R.drawable.ic_user_default);
-            }
+                } else btnSettings.setImageResource(R.drawable.ic_user_default);
+            } else btnSettings.setImageResource(R.drawable.ic_user_default);
         });
     }
 
-    /** 📡 Lắng nghe dữ liệu cảm biến Firebase */
+    /** 📡 Theo dõi dữ liệu cảm biến */
     private void setupSensorDataListener() {
         mDatabase.child("CamBien").addValueEventListener(new ValueEventListener() {
             @Override
@@ -155,36 +140,28 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.w(TAG, "Firebase Error: ", error.toException());
+                Log.w(TAG, "Firebase Error:", error.toException());
             }
         });
     }
 
-    /** 🧭 Điều hướng các CardView */
+    /** 🧭 Điều hướng sang các trang chi tiết */
     private void setupNavigationCards() {
-        cardSoil.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, SoilHistoryActivity.class)));
-        cardTempHumid.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, TempHumidHistoryActivity.class)));
-        cardLight.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, LightHistoryActivity.class)));
-        cardRain.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, RainHistoryActivity.class)));
-        cardPump.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, PumpSettingActivity.class)));
-        cardLightControl.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, LightSettingActivity.class)));
-        cardRoof.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, RoofSettingActivity.class)));
+        cardSoil.setOnClickListener(v -> startActivity(new Intent(this, SoilHistoryActivity.class)));
+        cardTempHumid.setOnClickListener(v -> startActivity(new Intent(this, TempHumidHistoryActivity.class)));
+        cardLight.setOnClickListener(v -> startActivity(new Intent(this, LightHistoryActivity.class)));
+        cardRain.setOnClickListener(v -> startActivity(new Intent(this, RainHistoryActivity.class)));
+        cardPump.setOnClickListener(v -> startActivity(new Intent(this, PumpSettingActivity.class)));
+        cardLightControl.setOnClickListener(v -> startActivity(new Intent(this, LightSettingActivity.class)));
+        cardRoof.setOnClickListener(v -> startActivity(new Intent(this, RoofSettingActivity.class)));
     }
 
-    /** ⚙️ Thiết lập menu Setting (giữ nguyên chức năng cũ) */
+    /** ⚙️ Menu cài đặt */
     private void setupSettingsMenu() {
-        // Gắn layout menu (layout_settings_menu.xml)
         menuView = getLayoutInflater().inflate(R.layout.layout_settings_menu, null);
-        addContentView(menuView, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT));
+        addContentView(menuView, new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT));
 
         settingsMenuPanel = menuView.findViewById(R.id.settings_menu_panel);
         dimBackground = menuView.findViewById(R.id.view_dim_background);
@@ -194,39 +171,32 @@ public class MainActivity extends AppCompatActivity {
         dimBackground.setVisibility(View.GONE);
         menuView.post(() -> settingsMenuPanel.setTranslationX(settingsMenuPanel.getWidth()));
 
-        // ✅ Khi click avatar → mở menu (giống như click icon setting)
         btnSettings.setOnClickListener(v -> toggleMenu());
         dimBackground.setOnClickListener(v -> {
             if (isMenuOpen) toggleMenu();
         });
 
-        // Các item trong menu
-        menuView.findViewById(R.id.item_info).setOnClickListener(v -> {
-            Log.d(TAG, "Thông tin được chọn");
-            toggleMenu();
-        });
-
-        // ✅ Khi ấn vào “Giới thiệu” → hiện thông báo ở dưới màn hình
+        // Giới thiệu app
         menuView.findViewById(R.id.item_about).setOnClickListener(v -> {
-            Log.d(TAG, "Giới thiệu được chọn");
             toggleMenu();
-
             Snackbar.make(findViewById(android.R.id.content),
-                    "Ứng dụng được phát triển bởi nhóm 2 - DHKM16A1HN",
-                    Snackbar.LENGTH_LONG).show();
+                    "Ứng dụng được phát triển bởi Nhóm 3 - Dự án Nhà Thông Minh",
+                    Snackbar.LENGTH_SHORT).show();
         });
 
+        // Hồ sơ người dùng
         menuView.findViewById(R.id.item_account).setOnClickListener(v -> {
             toggleMenu();
-            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+            startActivity(new Intent(this, ProfileActivity.class));
         });
     }
 
-    /** 🎬 Hiệu ứng mở / đóng menu */
+    /** 🎬 Hiệu ứng trượt menu */
     private void toggleMenu() {
         float menuWidth = settingsMenuPanel.getWidth();
 
         if (isMenuOpen) {
+            // Đóng
             ObjectAnimator slideOut = ObjectAnimator.ofFloat(settingsMenuPanel, "translationX", 0f, menuWidth);
             slideOut.setDuration(300);
             slideOut.setInterpolator(new DecelerateInterpolator());
@@ -239,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
             dimBackground.postDelayed(() -> dimBackground.setVisibility(View.GONE), 300);
         } else {
+            // Mở
             settingsMenuPanel.setVisibility(View.VISIBLE);
             dimBackground.setVisibility(View.VISIBLE);
 

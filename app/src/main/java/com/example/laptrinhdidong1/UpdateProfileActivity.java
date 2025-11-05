@@ -40,7 +40,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
     private RadioGroup rgGender;
     private RadioButton rbMale, rbFemale;
     private Button btnSave;
-    private ImageView imgAvatar, btnChangeAvatar;
+    private ImageView imgAvatar, btnChangeAvatar, btnBack;
 
     private DatabaseReference databaseReference;
     private String userId;
@@ -62,6 +62,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btnSave);
         imgAvatar = findViewById(R.id.imgAvatar);
         btnChangeAvatar = findViewById(R.id.btnChangeAvatar);
+        btnBack = findViewById(R.id.btnBack);
 
         // ⚙️ Firebase setup
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -74,7 +75,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // 📅 Ngày sinh chọn từ DatePicker
+        // 📅 Chọn ngày sinh từ DatePicker (giới hạn ≥18 tuổi)
         etBirth.setFocusable(false);
         etBirth.setOnClickListener(v -> showDatePicker());
 
@@ -83,9 +84,17 @@ public class UpdateProfileActivity extends AppCompatActivity {
 
         // 💾 Lưu thông tin
         btnSave.setOnClickListener(v -> saveProfile());
+
+        // 🔙 Quay lại trang hồ sơ
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(UpdateProfileActivity.this, ProfileActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        });
     }
 
-    /** 📅 Chọn ngày sinh (giới hạn ≥18 tuổi) */
+    /** 📅 Hiển thị DatePickerDialog (giới hạn ≥18 tuổi) */
     private void showDatePicker() {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
@@ -112,7 +121,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    /** 🧩 Kiểm tra quyền đọc ảnh */
+    /** 🧩 Kiểm tra quyền truy cập ảnh */
     private void checkImagePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
@@ -142,7 +151,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
-    /** 📸 Nhận ảnh được chọn */
+    /** 📸 Nhận ảnh đã chọn */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -152,7 +161,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
         }
     }
 
-    /** 💾 Lưu thông tin người dùng */
+    /** 💾 Lưu thông tin người dùng vào Firebase + ảnh local */
     private void saveProfile() {
         String name = etFullName.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
@@ -195,7 +204,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
             }
         }
 
-        // 🔥 Cập nhật Firebase và trả kết quả về ProfileActivity
+        // 🔥 Cập nhật Firebase
         databaseReference.updateChildren(updates)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "✅ Cập nhật thành công!", Toast.LENGTH_SHORT).show();
@@ -203,8 +212,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
                     finish();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "❌ Lỗi khi lưu dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
+                        Toast.makeText(this, "❌ Lỗi khi lưu dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     /** 🧮 Kiểm tra tuổi hợp lệ (≥18) */
