@@ -1,129 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6F8FA">
+    android:background="@drawable/gradient_background"
+    tools:context=".UpdateProfileActivity">
 
-    <!-- 🔙 Nút quay lại -->
+    <!-- 🔙 Nút quay lại đồng bộ toàn hệ thống -->
     <ImageView
         android:id="@+id/btnBack"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/ic_arrow_back"
-        android:contentDescription="Quay lại"
+        android:background="@drawable/bg_circle_white"
         android:padding="6dp"
-        android:elevation="4dp"
+        android:contentDescription="Quay lại"
+        android:elevation="3dp"
+        app:tint="#27AE60"
         android:clickable="true"
-        android:focusable="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        app:tint="#5E60CE" />
+        android:focusable="true" />
 
-    <!-- Nội dung chính -->
+    <!-- 🌿 Nội dung -->
     <ScrollView
+        android:id="@+id/scrollContent"
         android:layout_below="@id/btnBack"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="20dp">
+        android:layout_marginTop="8dp"
+        android:paddingHorizontal="20dp"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingBottom="24dp">
 
-            <!-- Ảnh đại diện -->
+            <!-- 🖼️ Ảnh đại diện -->
             <FrameLayout
                 android:layout_width="130dp"
                 android:layout_height="130dp"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="24dp">
 
                 <ImageView
                     android:id="@+id/imgAvatar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@android:drawable/ic_menu_gallery"
-                    android:background="@null" />
+                    android:background="@drawable/circle_bg"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_user_placeholder" />
 
                 <ImageView
                     android:id="@+id/btnChangeAvatar"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="bottom|end"
-                    android:layout_margin="5dp"
-                    android:src="@android:drawable/ic_menu_edit"
-                    android:background="@null"
-                    android:padding="5dp"
+                    android:layout_margin="6dp"
+                    android:src="@drawable/ic_edit"
+                    android:background="@drawable/bg_circle_white"
+                    android:padding="8dp"
+                    app:tint="#27AE60"
+                    android:elevation="3dp"
                     android:clickable="true"
-                    android:focusable="true"/>
+                    android:focusable="true" />
             </FrameLayout>
 
-            <!-- Thông tin người dùng -->
-            <EditText
-                android:id="@+id/etFullName"
-                android:hint="Họ và tên"
+            <!-- 🧍‍♂️ Nhập thông tin cá nhân -->
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:padding="10dp"
-                android:background="@android:drawable/edit_text"/>
+                android:layout_marginTop="24dp">
 
-            <EditText
-                android:id="@+id/etPhone"
-                android:hint="Số điện thoại"
-                android:inputType="phone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:padding="10dp"
-                android:background="@android:drawable/edit_text"/>
+                <!-- Họ và tên -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilFullName"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Họ và tên"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxStrokeColor="#27AE60">
 
-            <EditText
-                android:id="@+id/etBirth"
-                android:hint="Ngày sinh (dd/mm/yyyy)"
-                android:inputType="date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:padding="10dp"
-                android:background="@android:drawable/edit_text"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etFullName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:textColor="#1B4332"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <RadioGroup
-                android:id="@+id/rgGender"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp"
-                android:gravity="center">
+                <!-- Số điện thoại -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPhone"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Số điện thoại"
+                    android:layout_marginTop="12dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxStrokeColor="#27AE60">
 
-                <RadioButton
-                    android:id="@+id/rbMale"
-                    android:text="Nam"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="phone"
+                        android:textColor="#1B4332"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Ngày sinh -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilBirth"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Ngày sinh (dd/mm/yyyy)"
+                    android:layout_marginTop="12dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxStrokeColor="#27AE60">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etBirth"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="date"
+                        android:textColor="#1B4332"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Giới tính -->
+                <TextView
+                    android:text="Giới tính"
+                    android:textStyle="bold"
+                    android:textColor="#145A32"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true"/>
+                    android:layout_marginTop="16dp" />
 
-                <RadioButton
-                    android:id="@+id/rbFemale"
-                    android:text="Nữ"
-                    android:layout_width="wrap_content"
+                <RadioGroup
+                    android:id="@+id/rgGender"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="40dp"/>
-            </RadioGroup>
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="4dp">
 
-            <!-- Nút cập nhật -->
-            <Button
+                    <RadioButton
+                        android:id="@+id/rbMale"
+                        android:text="Nam"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:textColor="#1B4332" />
+
+                    <RadioButton
+                        android:id="@+id/rbFemale"
+                        android:text="Nữ"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="40dp"
+                        android:textColor="#1B4332" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <!-- 💾 Nút lưu -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"
-                android:text="Cập nhật thông tin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:backgroundTint="#5E60CE"
-                android:textColor="#FFFFFF"
-                android:textStyle="bold"/>
+                android:text="CẬP NHẬT THÔNG TIN"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#27AE60"
+                app:cornerRadius="24dp"
+                android:elevation="3dp" />
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

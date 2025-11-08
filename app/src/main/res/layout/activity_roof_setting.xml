@@ -1,138 +1,251 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E3F2FD">
+    android:background="@drawable/gradient_background"
+    tools:context=".RoofSettingActivity">
 
-    <!-- 🔙 Nút back góc trái -->
+    <!-- 🔙 Nút quay lại (kiểu bo tròn giống PumpSettingActivity) -->
     <ImageView
         android:id="@+id/btnBack"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_alignParentStart="true"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:clickable="true"
-        android:contentDescription="Quay lại"
-        android:focusable="true"
         android:src="@drawable/ic_arrow_back"
-        tools:ignore="TouchTargetSizeCheck" />
+        android:background="@drawable/bg_circle_white"
+        android:padding="6dp"
+        android:contentDescription="Quay lại"
+        android:elevation="3dp"
+        app:tint="#27AE60"
+        android:clickable="true"
+        android:focusable="true" />
 
-    <!-- 🔹 Nội dung chính -->
+    <!-- 🌤 ScrollView chính -->
     <ScrollView
         android:id="@+id/scrollViewRoof"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/btnBack"
         android:layout_marginTop="8dp"
-        android:paddingHorizontal="24dp"
+        android:paddingHorizontal="16dp"
         android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal"
             android:paddingBottom="24dp">
 
-            <!-- 🏷️ TIÊU ĐỀ -->
+            <!-- 🏠 Tiêu đề -->
             <TextView
                 android:id="@+id/tvTitleRoof"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="HỆ THỐNG MÁI CHE"
-                android:textSize="22sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="#1A237E"
+                android:textColor="@color/primaryGreen"
+                android:gravity="center"
                 android:layout_marginBottom="24dp" />
 
-            <!-- 🔘 TRẠNG THÁI MÁI CHE -->
-            <LinearLayout
+            <!-- 🚪 Thẻ trạng thái mái che -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
+                android:layout_marginVertical="8dp"
+                app:cardBackgroundColor="@color/lightGreenBackground"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                android:clipToOutline="true">
 
-                <TextView
-                    android:id="@+id/tvRoofStatusLabel"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Trạng thái mái che:"
-                    android:textSize="18sp"
-                    android:textColor="#000000" />
+                    android:orientation="vertical"
+                    android:paddingVertical="8dp">
 
-                <Switch
-                    android:id="@+id/swRoof"
-                    android:layout_width="wrap_content"
+                    <!-- ⚙️ Mở / Đóng -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
+
+                        <ImageView
+                            android:id="@+id/icon_roof_status"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_roof"
+                            app:tint="@color/iconGrey" />
+
+                        <TextView
+                            android:id="@+id/tvRoofStatusLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:layout_toEndOf="@id/icon_roof_status"
+                            android:text="Trạng thái mái che"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/swRoof"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:textOff=""
+                            android:textOn=""
+                            android:checked="false" />
+                    </RelativeLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:background="@color/divider_color" />
+
+                    <!-- 🤖 Chế độ tự động -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
+
+                        <ImageView
+                            android:id="@+id/icon_auto_mode_roof"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_clock"
+                            app:tint="@color/primaryBlue" />
+
+                        <TextView
+                            android:id="@+id/tvAutoModeRoof"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:layout_toEndOf="@id/icon_auto_mode_roof"
+                            android:text="Chế độ tự động"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/swAutoModeRoof"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:textOff=""
+                            android:textOn=""
+                            android:checked="false" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 🔧 Cài đặt tự động -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                app:cardBackgroundColor="@color/lightGreenBackground"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                android:clipToOutline="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="MỞ"
-                    android:textSize="16sp"
-                    tools:ignore="TouchTargetSizeCheck" />
-            </LinearLayout>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <!-- 🤖 CHẾ ĐỘ TỰ ĐỘNG -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CÀI ĐẶT TỰ ĐỘNG"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="20dp" />
 
-                <TextView
-                    android:id="@+id/tvAutoModeRoof"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Chế độ tự động:"
-                    android:textSize="18sp"
-                    android:textColor="#000000" />
+                    <!-- 🌡️ Ngưỡng nhiệt độ -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
 
-                <Switch
-                    android:id="@+id/swAutoModeRoof"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TẮT"
-                    android:textSize="16sp"
-                    tools:ignore="TouchTargetSizeCheck" />
-            </LinearLayout>
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_temperature"
+                            app:tint="@color/iconOrange" />
 
-            <!-- 🌡️ NGƯỠNG NHIỆT ĐỘ -->
-            <TextView
-                android:id="@+id/tvTempThreshold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Ngưỡng nhiệt độ: 30°C"
-                android:textSize="18sp"
-                android:textColor="#000000"
-                android:layout_marginTop="8dp" />
+                        <TextView
+                            android:id="@+id/tvTempThreshold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:text="Ngưỡng nhiệt độ: 30°C"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_primary" />
+                    </LinearLayout>
 
-            <SeekBar
-                android:id="@+id/seekTemp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="50"
-                android:progress="30" />
+                    <SeekBar
+                        android:id="@+id/seekTemp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="50"
+                        android:progress="30"
+                        android:layout_marginBottom="16dp"
+                        android:thumbTint="@color/primaryGreen"
+                        android:progressTint="@color/primaryGreen"
+                        android:progressBackgroundTint="@color/text_secondary" />
 
-            <!-- ☀️ NGƯỠNG ÁNH SÁNG -->
-            <TextView
-                android:id="@+id/tvLightThreshold"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Ngưỡng ánh sáng: 60%"
-                android:textSize="18sp"
-                android:textColor="#000000"
-                android:layout_marginTop="8dp" />
+                    <!-- ☀️ Ngưỡng ánh sáng -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
 
-            <SeekBar
-                android:id="@+id/seekLight"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="100"
-                android:progress="60" />
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_light"
+                            app:tint="@color/iconYellow" />
 
+                        <TextView
+                            android:id="@+id/tvLightThreshold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:text="Ngưỡng ánh sáng: 60%"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_primary" />
+                    </LinearLayout>
+
+                    <SeekBar
+                        android:id="@+id/seekLight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="100"
+                        android:progress="60"
+                        android:thumbTint="@color/primaryGreen"
+                        android:progressTint="@color/primaryGreen"
+                        android:progressBackgroundTint="@color/text_secondary" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

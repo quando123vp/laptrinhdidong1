@@ -8,4 +8,12 @@
     <string name="menu_info">Thông tin</string>
     <string name="menu_about">Giới thiệu</string>
     <string name="menu_account">Tài khoản</string>
+    <string name="light_label">Ánh sáng</string>
+    <string name="light_icon_desc">Biểu tượng ánh sáng</string>
+    <string name="rain_label">Trạng thái mưa</string>
+    <string name="rain_icon_desc">Biểu tượng mưa</string>
+    <string name="avatar_user">Ảnh đại diện người dùng</string>
+
+    <!-- strings.xml -->
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_HERE.apps.googleusercontent.com</string>
 </resources>

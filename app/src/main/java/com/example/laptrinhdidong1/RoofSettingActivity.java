@@ -4,13 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class RoofSettingActivity extends AppCompatActivity {
 
-    private Switch swRoof, swAutoModeRoof;
+    private SwitchMaterial swRoof, swAutoModeRoof;
     private TextView tvRoofStatusLabel, tvTempThreshold, tvLightThreshold;
     private SeekBar seekTemp, seekLight;
     private ImageView btnBack;
@@ -42,28 +44,24 @@ public class RoofSettingActivity extends AppCompatActivity {
         // 🚪 Mở / Đóng thủ công
         swRoof.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                swRoof.setText("ĐÓNG");
-                tvRoofStatusLabel.setText("Trạng thái mái che: ĐANG MỞ 🌤️");
+                tvRoofStatusLabel.setText("Trạng thái: ĐANG MỞ 🌤️");
             } else {
-                swRoof.setText("MỞ");
-                tvRoofStatusLabel.setText("Trạng thái mái che: ĐANG ĐÓNG 🌧️");
+                tvRoofStatusLabel.setText("Trạng thái: ĐANG ĐÓNG 🌧️");
             }
         });
 
         // 🤖 Chế độ tự động
         swAutoModeRoof.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                swAutoModeRoof.setText("BẬT");
                 swRoof.setEnabled(false);
                 seekTemp.setEnabled(true);
                 seekLight.setEnabled(true);
-                tvRoofStatusLabel.setText("Trạng thái: TỰ ĐỘNG ⚙️");
+                tvRoofStatusLabel.setText("TỰ ĐỘNG ⚙️");
             } else {
-                swAutoModeRoof.setText("TẮT");
                 swRoof.setEnabled(true);
                 seekTemp.setEnabled(false);
                 seekLight.setEnabled(false);
-                tvRoofStatusLabel.setText("Trạng thái: THỦ CÔNG ✋");
+                tvRoofStatusLabel.setText("THỦ CÔNG ✋");
             }
         });
 

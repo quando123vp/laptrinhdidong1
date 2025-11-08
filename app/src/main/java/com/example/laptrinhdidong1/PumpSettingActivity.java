@@ -6,26 +6,29 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.Locale;
 
 public class PumpSettingActivity extends AppCompatActivity {
 
-    private Button btnAddTime, btnManualPump;
+    private MaterialButton btnAddTime, btnManualPump;
     private LinearLayout llScheduledTimesContainer;
-    private TextView tvClearAll, tvPumpStatus;
+    private TextView tvClearAll, tvPumpStatus, tvCurrentMoisture;
     private EditText etWaterAmount;
     private ImageView btnBackPump;
     private Handler handler = new Handler();
 
-    // Giả lập độ ẩm đất hiện tại
+    // 🔹 Giả lập độ ẩm đất hiện tại
     private int currentMoisture = 30;
 
     @Override
@@ -33,7 +36,7 @@ public class PumpSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pump_setting);
 
-        // Ánh xạ
+        // ===== ÁNH XẠ VIEW =====
         btnAddTime = findViewById(R.id.btn_add_time);
         llScheduledTimesContainer = findViewById(R.id.ll_scheduled_times_container);
         tvClearAll = findViewById(R.id.tv_clear_all);
@@ -41,53 +44,52 @@ public class PumpSettingActivity extends AppCompatActivity {
         etWaterAmount = findViewById(R.id.et_water_amount);
         tvPumpStatus = findViewById(R.id.tv_pump_status);
         btnBackPump = findViewById(R.id.btnBackPump);
+        tvCurrentMoisture = findViewById(R.id.tv_current_moisture);
 
-        // 🔙 Nút quay lại về MainActivity
-        btnBackPump.setOnClickListener(v -> {
-            Intent intent = new Intent(PumpSettingActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        // 🔙 Quay lại MainActivity
+        btnBackPump.setOnClickListener(v -> onBackPressed());
 
-        // Ẩn trạng thái bơm khi mới mở
-        tvPumpStatus.setVisibility(View.GONE);
+        // Cập nhật độ ẩm đất ban đầu
+        tvCurrentMoisture.setText(currentMoisture + " %");
+        tvPumpStatus.setVisibility(TextView.GONE);
 
-        // ====== Xử lý nút thêm giờ bơm ======
+        // ➕ Thêm giờ bơm tự động
         btnAddTime.setOnClickListener(v -> showTimePickerDialog());
 
-        // ====== Xử lý nút xóa tất cả giờ ======
+        // 🗑️ Xóa tất cả lịch bơm
         tvClearAll.setOnClickListener(v -> {
             llScheduledTimesContainer.removeAllViews();
             Toast.makeText(this, "Đã xóa tất cả giờ bơm!", Toast.LENGTH_SHORT).show();
         });
 
-        // ====== Xử lý nút BƠM thủ công ======
+        // 💧 Bơm thủ công
         btnManualPump.setOnClickListener(v -> startManualPump());
     }
 
-    // ---------------- BƠM THỦ CÔNG ---------------- //
+    // =========================
+    // 💧 BƠM THỦ CÔNG
+    // =========================
     private void startManualPump() {
         String targetStr = etWaterAmount.getText().toString().trim();
         if (targetStr.isEmpty()) {
-            Toast.makeText(this, "Nhập độ ẩm muốn bơm!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "⚠️ Nhập độ ẩm muốn bơm!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         int target = Integer.parseInt(targetStr);
         if (target <= currentMoisture) {
-            Toast.makeText(this, "Độ ẩm đã đủ!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "✅ Độ ẩm đã đủ, không cần bơm!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Hiện thông báo khi bắt đầu bơm
-        tvPumpStatus.setVisibility(View.VISIBLE);
-        tvPumpStatus.setText("💧 Đang bơm...");
-
+        tvPumpStatus.setVisibility(TextView.VISIBLE);
+        tvPumpStatus.setText("💧 Đang bơm... " + currentMoisture + "%");
         simulatePumping(target);
     }
 
     private void simulatePumping(int target) {
         final int[] progress = {currentMoisture};
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -98,26 +100,26 @@ public class PumpSettingActivity extends AppCompatActivity {
                 } else {
                     tvPumpStatus.setText("✅ Đã đạt " + target + "% – Dừng bơm!");
                     currentMoisture = target;
-                    handler.postDelayed(() -> tvPumpStatus.setVisibility(View.GONE), 2000);
+                    tvCurrentMoisture.setText(currentMoisture + " %");
+                    handler.postDelayed(() -> tvPumpStatus.setVisibility(TextView.GONE), 2000);
                 }
             }
         }, 150);
     }
 
-    // ---------------- BƠM TỰ ĐỘNG ---------------- //
+    // =========================
+    // ⏰ BƠM TỰ ĐỘNG
+    // =========================
     private void showTimePickerDialog() {
         TimePickerDialog timePickerDialog = new TimePickerDialog(
                 this,
-                android.R.style.Theme_Holo_Light_Dialog_NoActionBar_MinWidth,
                 (view, hourOfDay, minute) -> {
                     String selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
                     showRepeatDialog(selectedTime);
                 },
                 8, 0, true
         );
-
         timePickerDialog.setTitle("Chọn giờ bơm");
-        timePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         timePickerDialog.show();
     }
 
@@ -173,21 +175,21 @@ public class PumpSettingActivity extends AppCompatActivity {
             clockIcon.setImageResource(android.R.drawable.ic_popup_sync);
         else
             clockIcon.setImageResource(android.R.drawable.ic_lock_idle_alarm);
+
         LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(60, 60);
         clockIcon.setLayoutParams(iconParams);
 
         TextView tvTime = new TextView(this);
         tvTime.setText(time);
-        tvTime.setTextSize(17);
+        tvTime.setTextSize(16);
         tvTime.setPadding(16, 0, 0, 0);
-        tvTime.setSingleLine(false);
-        tvTime.setMaxLines(3);
+        tvTime.setTextColor(getResources().getColor(android.R.color.black));
         tvTime.setLayoutParams(new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
         TextView tvDelete = new TextView(this);
         tvDelete.setText("❌");
-        tvDelete.setTextSize(20);
+        tvDelete.setTextSize(18);
         tvDelete.setPadding(16, 0, 0, 0);
         tvDelete.setOnClickListener(v -> {
             llScheduledTimesContainer.removeView(row);
@@ -198,5 +200,13 @@ public class PumpSettingActivity extends AppCompatActivity {
         row.addView(tvTime);
         row.addView(tvDelete);
         llScheduledTimesContainer.addView(row);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
     }
 }

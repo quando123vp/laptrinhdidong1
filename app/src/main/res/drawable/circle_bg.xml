@@ -8,7 +8,7 @@
     <!-- Viền tím nhạt -->
     <stroke
         android:width="2dp"
-        android:color="#6A5ACD" />
+        android:color="#79BD2A" />
 
     <!-- Kích thước vùng hiển thị avatar -->
     <size

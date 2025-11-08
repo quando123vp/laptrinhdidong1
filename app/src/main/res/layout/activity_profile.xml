@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF9E9">
+    android:background="@drawable/gradient_background"
+    tools:context=".ProfileActivity">
 
     <!-- 🔙 Nút quay lại -->
     <ImageView
         android:id="@+id/btnBack"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/ic_arrow_back"
-        android:contentDescription="Quay lại"
+        android:background="@drawable/bg_circle_white"
         android:padding="6dp"
-        android:elevation="4dp"
+        android:contentDescription="Quay lại"
+        android:elevation="3dp"
+        app:tint="#27AE60"
         android:clickable="true"
-        android:focusable="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        app:tint="#6A5ACD" />
+        android:focusable="true" />
 
     <!-- 📜 Phần nội dung cuộn -->
     <ScrollView
@@ -27,21 +29,24 @@
         android:layout_below="@id/btnBack"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:layout_marginTop="8dp"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:paddingBottom="24dp">
 
-            <!-- 🖼️ Ảnh đại diện + nút cập nhật -->
+            <!-- 🖼️ Ảnh đại diện + nút sửa -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="20dp">
 
                 <ImageView
                     android:id="@+id/imgAvatar"
@@ -50,6 +55,7 @@
                     android:layout_marginEnd="12dp"
                     android:background="@drawable/circle_bg"
                     android:scaleType="centerCrop"
+                    android:elevation="4dp"
                     android:clickable="true"
                     android:focusable="true" />
 
@@ -64,77 +70,102 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_edit"
-                        app:tint="#6A5ACD" />
+                        app:tint="#27AE60" />
 
                     <TextView
                         android:id="@+id/btnUpdate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Sửa"
-                        android:textColor="#6A5ACD"
+                        android:textColor="#27AE60"
                         android:textStyle="bold"
-                        android:layout_marginStart="4dp" />
+                        android:layout_marginStart="4dp"
+                        android:textSize="16sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <!-- 👤 Thông tin cá nhân -->
-            <LinearLayout
-                android:orientation="vertical"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:padding="12dp"
-                android:background="@drawable/rounded_card_bg">
+                android:layout_marginTop="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@android:color/white">
 
-                <TextView
-                    android:text="Họ và tên:"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/tvName"
+                <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="8dp" />
+                    android:padding="20dp">
 
-                <TextView
-                    android:text="Số điện thoại:"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    <TextView
+                        android:text="THÔNG TIN CÁ NHÂN"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#145A32"
+                        android:gravity="center"
+                        android:layout_marginBottom="16dp" />
 
-                <TextView
-                    android:id="@+id/tvPhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="8dp" />
+                    <TextView
+                        android:text="Họ và tên:"
+                        android:textStyle="bold"
+                        android:textColor="#1B4332"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
-                <TextView
-                    android:text="Giới tính:"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/tvName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="8dp"
+                        android:textColor="#2C3E50" />
 
-                <TextView
-                    android:id="@+id/tvGender"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="8dp" />
+                    <TextView
+                        android:text="Số điện thoại:"
+                        android:textStyle="bold"
+                        android:textColor="#1B4332"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
-                <TextView
-                    android:text="Ngày sinh:"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/tvPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="8dp"
+                        android:textColor="#2C3E50" />
 
-                <TextView
-                    android:id="@+id/tvBirthday"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="8dp" />
-            </LinearLayout>
+                    <TextView
+                        android:text="Giới tính:"
+                        android:textStyle="bold"
+                        android:textColor="#1B4332"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
+                    <TextView
+                        android:id="@+id/tvGender"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="8dp"
+                        android:textColor="#2C3E50" />
+
+                    <TextView
+                        android:text="Ngày sinh:"
+                        android:textStyle="bold"
+                        android:textColor="#1B4332"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/tvBirthday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="8dp"
+                        android:textColor="#2C3E50" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

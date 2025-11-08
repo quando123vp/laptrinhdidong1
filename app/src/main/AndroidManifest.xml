@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.laptrinhdidong1">
 
-    <!-- 📸 Quyền truy cập ảnh trên các phiên bản Android -->
+    <!-- 📸 Quyền truy cập ảnh (tùy phiên bản Android) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
@@ -18,9 +18,9 @@
         android:theme="@style/Theme.Laptrinhdidong1"
         tools:targetApi="31">
 
-        <!-- 🔑 Giao diện đăng nhập (mở đầu tiên khi chạy app) -->
+        <!-- 🏠 Giao diện chính (MainActivity là màn đầu tiên khi đăng nhập thành công) -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,22 +28,25 @@
             </intent-filter>
         </activity>
 
-        <!-- 🆕 Giao diện đăng ký -->
+        <!-- 🔑 Đăng nhập -->
+        <activity android:name=".LoginActivity" android:exported="true" />
+
+        <!-- 🆕 Đăng ký tài khoản -->
         <activity android:name=".RegisterActivity" android:exported="true" />
 
         <!-- 👤 Hồ sơ cá nhân -->
         <activity android:name=".ProfileActivity" android:exported="true" />
 
-        <!-- 🛠️ Cập nhật thông tin cá nhân -->
+        <!-- ✏️ Cập nhật thông tin người dùng -->
         <activity android:name=".UpdateProfileActivity" android:exported="true" />
 
-        <!-- 💧 Bơm nước -->
+        <!-- 💧 Cài đặt bơm nước -->
         <activity android:name=".PumpSettingActivity" android:exported="true" />
 
-        <!-- 💡 Đèn chiếu sáng -->
+        <!-- 💡 Cài đặt hệ thống đèn -->
         <activity android:name=".LightSettingActivity" android:exported="true" />
 
-        <!-- ☂️ Mái che -->
+        <!-- ☂️ Cài đặt mái che -->
         <activity android:name=".RoofSettingActivity" android:exported="true" />
 
         <!-- 🌡️ Lịch sử nhiệt độ / độ ẩm -->
@@ -55,11 +58,8 @@
         <!-- ☀️ Lịch sử ánh sáng -->
         <activity android:name=".LightHistoryActivity" android:exported="true" />
 
-        <!-- 🌧️ Lịch sử thời tiết -->
+        <!-- 🌧️ Lịch sử mưa -->
         <activity android:name=".RainHistoryActivity" android:exported="true" />
-
-        <!-- 🏠 Giao diện chính -->
-        <activity android:name=".MainActivity" android:exported="true" />
 
     </application>
 </manifest>

@@ -1,50 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:gravity="center"
-    android:background="@drawable/bgd">
+    android:background="@drawable/gradient_background"
+    tools:context=".LoginActivity">
 
-    <TextView
-        android:text="HỆ THỐNG CHĂM SÓC VƯỜN TM"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
+    <!-- 🌿 Header -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginBottom="24dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <EditText
-        android:id="@+id/etEmail"
-        android:hint="Tài khoản"
-        android:inputType="textEmailAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginTop="80dp">
 
-    <EditText
-        android:id="@+id/etPassword"
-        android:hint="Mật khẩu"
-        android:inputType="textPassword"
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_user_placeholder"
+            android:contentDescription="App logo"
+            app:tint="#27AE60"
+            android:elevation="4dp" />
+
+        <TextView
+            android:text="HỆ THỐNG CHĂM SÓC VƯỜN TM"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#145A32"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- 📋 Form đăng nhập -->
+    <LinearLayout
+        android:id="@+id/loginForm"
+        android:layout_below="@id/header"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="30dp">
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:text="Đăng Nhập"
+        <!-- ✉️ Email -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilEmail"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tài khoản"
+            app:boxCornerRadiusTopStart="18dp"
+            app:boxCornerRadiusTopEnd="18dp"
+            app:boxCornerRadiusBottomStart="18dp"
+            app:boxCornerRadiusBottomEnd="18dp"
+            app:boxStrokeColor="#27AE60">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:textColor="#1B4332"
+                android:textSize="16sp"
+                android:paddingStart="8dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 🔒 Mật khẩu -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mật khẩu"
+            android:layout_marginTop="16dp"
+            app:endIconMode="password_toggle"
+            app:boxCornerRadiusTopStart="18dp"
+            app:boxCornerRadiusTopEnd="18dp"
+            app:boxCornerRadiusBottomStart="18dp"
+            app:boxCornerRadiusBottomEnd="18dp"
+            app:boxStrokeColor="#27AE60">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="#1B4332"
+                android:textSize="16sp"
+                android:paddingStart="8dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 🔘 Đăng nhập -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="ĐĂNG NHẬP"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#27AE60"
+            app:cornerRadius="24dp"
+            android:elevation="3dp" />
+
+        <!-- 🔗 Đăng ký -->
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chưa có tài khoản? Đăng ký ngay"
+            android:textColor="#0A84FF"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!-- 🌐 Logo Google ở cuối -->
+    <LinearLayout
+        android:id="@+id/googleLoginContainer"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/tvRegister"
-        android:text="Chưa có tài khoản? Đăng ký ngay"
-        android:textColor="#0A84FF"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+        android:paddingBottom="48dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hoặc đăng nhập bằng"
+            android:textSize="15sp"
+            android:textColor="#666666"
+            android:layout_marginBottom="14dp"
+            android:textStyle="italic" />
+
+        <!-- 🔴 Logo Google -->
+        <ImageView
+            android:id="@+id/icGoogleLogo"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/logogoogle"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:contentDescription="Google logo"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+</RelativeLayout>

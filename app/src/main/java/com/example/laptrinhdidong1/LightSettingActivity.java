@@ -4,14 +4,18 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.switchmaterial.SwitchMaterial; // ✅ dùng SwitchMaterial của Material Design
+
 import java.util.Calendar;
 
 public class LightSettingActivity extends AppCompatActivity {
 
-    private Switch swLight, swAutoMode;
+    private SwitchMaterial swLight, swAutoMode; // ✅ Sửa kiểu SwitchMaterial
     private TextView tvStatusLabel, tvTimeOn, tvTimeOff;
     private ImageView btnBackLight;
 
@@ -33,32 +37,28 @@ public class LightSettingActivity extends AppCompatActivity {
 
         // ====== NÚT QUAY LẠI ======
         btnBackLight.setOnClickListener(v -> {
-            Intent intent = new Intent(LightSettingActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            onBackPressed(); // quay lại nhanh, không tạo Activity mới
         });
 
         // ====== BẬT / TẮT ĐÈN THỦ CÔNG ======
         swLight.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                swLight.setText("TẮT");
-                tvStatusLabel.setText("Trạng thái đèn: ĐANG BẬT 💡");
+                tvStatusLabel.setText("💡 Đèn đang BẬT");
             } else {
-                swLight.setText("BẬT");
-                tvStatusLabel.setText("Trạng thái đèn: ĐANG TẮT 🌑");
+                tvStatusLabel.setText("🌑 Đèn đang TẮT");
             }
         });
 
         // ====== CHẾ ĐỘ TỰ ĐỘNG ======
         swAutoMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                swAutoMode.setText("BẬT");
-                swLight.setEnabled(false); // Khóa công tắc thủ công
-                tvStatusLabel.setText("Trạng thái: TỰ ĐỘNG ⚙️");
+                swLight.setEnabled(false);
+                tvStatusLabel.setText("⚙️ Đang ở chế độ TỰ ĐỘNG");
+                Toast.makeText(this, "Đã bật chế độ tự động", Toast.LENGTH_SHORT).show();
             } else {
-                swAutoMode.setText("TẮT");
                 swLight.setEnabled(true);
-                tvStatusLabel.setText("Trạng thái: THỦ CÔNG ✋");
+                tvStatusLabel.setText("✋ Đang ở chế độ THỦ CÔNG");
+                Toast.makeText(this, "Đã tắt chế độ tự động", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -83,15 +83,24 @@ public class LightSettingActivity extends AppCompatActivity {
                     if (isTimeOn) {
                         hourOn = hourOfDay;
                         minuteOn = minute1;
-                        tvTimeOn.setText(timeText);
+                        tvTimeOn.setText("Bật: " + timeText);
                     } else {
                         hourOff = hourOfDay;
                         minuteOff = minute1;
-                        tvTimeOff.setText(timeText);
+                        tvTimeOff.setText("Tắt: " + timeText);
                     }
                 },
                 hour, minute, true
         );
         timePickerDialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // ✅ Quay về MainActivity không tạo stack mới
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
     }
 }
