@@ -2,18 +2,21 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:clipToPadding="false"
     android:background="@drawable/gradient_background"
     tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rootConstraint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- 🧍 Avatar -->
+        <!-- Avatar & title -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_avatar"
             android:layout_width="50dp"
@@ -35,7 +38,6 @@
                 android:foreground="?attr/selectableItemBackgroundBorderless" />
         </androidx.cardview.widget.CardView>
 
-        <!-- 👋 Lời chào -->
         <TextView
             android:id="@+id/tv_welcome"
             android:layout_width="0dp"
@@ -61,7 +63,7 @@
             app:layout_constraintEnd_toStartOf="@id/card_avatar"
             android:layout_marginEnd="16dp" />
 
-        <!-- 🔹 Tiêu đề cảm biến -->
+        <!-- Subtitle -->
         <TextView
             android:id="@+id/tv_sensor_subtitle"
             android:layout_width="wrap_content"
@@ -74,7 +76,7 @@
             app:layout_constraintTop_toBottomOf="@id/tv_title"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- 🧩 Grid cảm biến -->
+        <!-- Grid sensors: mỗi ô FrameLayout width=0 + columnWeight=1 để chia đều 2 cột -->
         <GridLayout
             android:id="@+id/grid_sensors"
             android:layout_width="0dp"
@@ -88,44 +90,42 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- 🌱 Độ ẩm đất -->
+            <!-- mỗi FrameLayout chiếm 1/2 ngang -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_margin="8dp"
                 android:layout_columnWeight="1">
+                <!-- Đảm bảo item_soil_card CardView root là match_parent -->
                 <include layout="@layout/item_soil_card" />
             </FrameLayout>
 
-            <!-- 🌡️ Nhiệt độ / Độ ẩm -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_margin="8dp"
                 android:layout_columnWeight="1">
                 <include layout="@layout/item_sensor_temp_humid" />
             </FrameLayout>
 
-            <!-- ☀️ Ánh sáng -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_margin="8dp"
                 android:layout_columnWeight="1">
                 <include layout="@layout/item_light_card" />
             </FrameLayout>
 
-            <!-- 🌧️ Mưa -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="170dp"
                 android:layout_margin="8dp"
                 android:layout_columnWeight="1">
                 <include layout="@layout/item_rain_card" />
             </FrameLayout>
         </GridLayout>
 
-        <!-- 🧠 Tiêu đề bảng điều khiển -->
+        <!-- Control subtitle -->
         <TextView
             android:id="@+id/tv_control_subtitle"
             android:layout_width="wrap_content"
@@ -138,7 +138,7 @@
             app:layout_constraintTop_toBottomOf="@id/grid_sensors"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- ⚙️ Các card điều khiển -->
+        <!-- Controls include -->
         <include
             android:id="@+id/layout_controls"
             layout="@layout/layout_control_section"
@@ -147,7 +147,6 @@
             app:layout_constraintTop_toBottomOf="@id/tv_control_subtitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="32dp" />
 

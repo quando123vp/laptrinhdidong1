@@ -13,7 +13,10 @@
     <string name="rain_label">Trạng thái mưa</string>
     <string name="rain_icon_desc">Biểu tượng mưa</string>
     <string name="avatar_user">Ảnh đại diện người dùng</string>
-
+    <string name="temp_icon">Biểu tượng nhiệt độ</string>
+    <string name="rain_icon">Rain icon</string>
+    <string name="soil_icon">Soil icon</string>
+    <string name="light_icon">Light icon</string>
     <!-- strings.xml -->
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_HERE.apps.googleusercontent.com</string>
 </resources>
