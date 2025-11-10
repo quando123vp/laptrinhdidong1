@@ -12,10 +12,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Locale;
 
@@ -30,6 +30,12 @@ public class PumpSettingActivity extends AppCompatActivity {
 
     // 🔹 Giả lập độ ẩm đất hiện tại
     private int currentMoisture = 30;
+
+    // Trạng thái pumping để tránh bấm nhiều lần
+    private boolean isPumping = false;
+
+    // Runnable tham chiếu để có thể removeCallbacks khi cần
+    private Runnable pumpingRunnable = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +52,6 @@ public class PumpSettingActivity extends AppCompatActivity {
         btnBackPump = findViewById(R.id.btnBackPump);
         tvCurrentMoisture = findViewById(R.id.tv_current_moisture);
 
-        // 🔙 Quay lại MainActivity
-        btnBackPump.setOnClickListener(v -> onBackPressed());
-
         // Cập nhật độ ẩm đất ban đầu
         tvCurrentMoisture.setText(currentMoisture + " %");
         tvPumpStatus.setVisibility(TextView.GONE);
@@ -64,33 +67,86 @@ public class PumpSettingActivity extends AppCompatActivity {
 
         // 💧 Bơm thủ công
         btnManualPump.setOnClickListener(v -> startManualPump());
+
+        // 🔙 Back button trong layout — dùng chung hành vi với back gesture
+        btnBackPump.setOnClickListener(v -> navigateBackToMain());
+
+        // =========================
+        // Back gesture & button: dùng OnBackPressedDispatcher (AndroidX)
+        // =========================
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // gọi chung hàm điều hướng
+                navigateBackToMain();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // remove any pending pumping callbacks to avoid leaks
+        if (pumpingRunnable != null) handler.removeCallbacks(pumpingRunnable);
+        handler.removeCallbacksAndMessages(null);
     }
 
     // =========================
     // 💧 BƠM THỦ CÔNG
     // =========================
     private void startManualPump() {
-        String targetStr = etWaterAmount.getText().toString().trim();
-        if (targetStr.isEmpty()) {
-            Toast.makeText(this, "⚠️ Nhập độ ẩm muốn bơm!", Toast.LENGTH_SHORT).show();
+        if (isPumping) {
+            Toast.makeText(this, "Đang bơm. Vui lòng chờ hoàn tất.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int target = Integer.parseInt(targetStr);
-        if (target <= currentMoisture) {
-            Toast.makeText(this, "✅ Độ ẩm đã đủ, không cần bơm!", Toast.LENGTH_SHORT).show();
+        String targetStr = etWaterAmount.getText().toString().trim();
+        if (targetStr.isEmpty()) {
+            Toast.makeText(this, "⚠️ Nhập độ ẩm mục tiêu (0 - 100)!", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        int target;
+        try {
+            String digitsOnly = targetStr.replaceAll("[^0-9\\-]", "");
+            target = Integer.parseInt(digitsOnly);
+        } catch (Exception e) {
+            Toast.makeText(this, "⚠️ Giá trị không hợp lệ. Vui lòng nhập số 0-100.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Clamp target vào [0, 100]
+        if (target < 0) {
+            Toast.makeText(this, "⚠️ Giá trị tối thiểu là 0%.", Toast.LENGTH_SHORT).show();
+            target = 0;
+        }
+        if (target > 100) {
+            Toast.makeText(this, "⚠️ Giá trị vượt quá 100% — đã giới hạn về 100%.", Toast.LENGTH_SHORT).show();
+            target = 100;
+        }
+
+        // Nếu mục tiêu <= hiện tại -> không cần bơm
+        if (target <= currentMoisture) {
+            Toast.makeText(this, "✅ Độ ẩm hiện tại đã bằng hoặc cao hơn mục tiêu.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Bắt đầu bơm
+        isPumping = true;
+        btnManualPump.setEnabled(false);
+        etWaterAmount.setEnabled(false);
 
         tvPumpStatus.setVisibility(TextView.VISIBLE);
         tvPumpStatus.setText("💧 Đang bơm... " + currentMoisture + "%");
+
         simulatePumping(target);
     }
 
     private void simulatePumping(int target) {
         final int[] progress = {currentMoisture};
 
-        handler.postDelayed(new Runnable() {
+        pumpingRunnable = new Runnable() {
             @Override
             public void run() {
                 if (progress[0] < target) {
@@ -101,10 +157,17 @@ public class PumpSettingActivity extends AppCompatActivity {
                     tvPumpStatus.setText("✅ Đã đạt " + target + "% – Dừng bơm!");
                     currentMoisture = target;
                     tvCurrentMoisture.setText(currentMoisture + " %");
-                    handler.postDelayed(() -> tvPumpStatus.setVisibility(TextView.GONE), 2000);
+                    handler.postDelayed(() -> {
+                        tvPumpStatus.setVisibility(TextView.GONE);
+                        isPumping = false;
+                        btnManualPump.setEnabled(true);
+                        etWaterAmount.setEnabled(true);
+                    }, 1500);
                 }
             }
-        }, 150);
+        };
+
+        handler.postDelayed(pumpingRunnable, 150);
     }
 
     // =========================
@@ -202,8 +265,8 @@ public class PumpSettingActivity extends AppCompatActivity {
         llScheduledTimesContainer.addView(row);
     }
 
-    @Override
-    public void onBackPressed() {
+    // Common navigate back method used by both back button and gesture
+    private void navigateBackToMain() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);

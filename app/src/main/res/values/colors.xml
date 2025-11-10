@@ -15,6 +15,13 @@
     <color name="iconYellow">#FFC107</color>
     <color name="iconGrey">#9E9E9E</color>
     <color name="dividerLight">#E0E0E0</color>
+    <color name="lightBlueBackground">#D6F0FF</color>
+
+    <!-- RainHistory colors -->
+    <color name="rainBlueBackground">#CFE8FF</color>      <!-- Có mưa -->
+    <color name="noRainGreenBackground">#D9FDD3</color>   <!-- Không mưa -->
+    <color name="lightGrayBackground">#F2F2F2</color>     <!-- Khác / fallback -->
+
 
     <color name="divider_color">#1F000000</color>
 </resources>
