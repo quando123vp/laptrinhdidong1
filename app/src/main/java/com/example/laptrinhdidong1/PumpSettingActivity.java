@@ -5,7 +5,9 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -13,13 +15,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Locale;
 
 public class PumpSettingActivity extends AppCompatActivity {
+
+    private static final String TAG = "PumpSettingActivity";
 
     private MaterialButton btnAddTime, btnManualPump;
     private LinearLayout llScheduledTimesContainer;
@@ -28,76 +37,101 @@ public class PumpSettingActivity extends AppCompatActivity {
     private ImageView btnBackPump;
     private Handler handler = new Handler();
 
-    // 🔹 Giả lập độ ẩm đất hiện tại
-    private int currentMoisture = 30;
+    // Firebase
+    private DatabaseReference mDatabase;
+    private DatabaseReference camBienRef;
+    private DatabaseReference camActuatorPumpRef;
 
-    // Trạng thái pumping để tránh bấm nhiều lần
+    // Local state
+    private float currentMoisture = 0f; // đọc từ Firebase
     private boolean isPumping = false;
 
-    // Runnable tham chiếu để có thể removeCallbacks khi cần
-    private Runnable pumpingRunnable = null;
+    // Firebase listener ref (so we can remove onDestroy)
+    private com.google.firebase.database.ValueEventListener camBienListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pump_setting);
+        try {
+            setContentView(R.layout.activity_pump_setting);
 
-        // ===== ÁNH XẠ VIEW =====
-        btnAddTime = findViewById(R.id.btn_add_time);
-        llScheduledTimesContainer = findViewById(R.id.ll_scheduled_times_container);
-        tvClearAll = findViewById(R.id.tv_clear_all);
-        btnManualPump = findViewById(R.id.btn_manual_pump);
-        etWaterAmount = findViewById(R.id.et_water_amount);
-        tvPumpStatus = findViewById(R.id.tv_pump_status);
-        btnBackPump = findViewById(R.id.btnBackPump);
-        tvCurrentMoisture = findViewById(R.id.tv_current_moisture);
+            // ===== ÁNH XẠ VIEW =====
+            btnAddTime = findViewById(R.id.btn_add_time);
+            llScheduledTimesContainer = findViewById(R.id.ll_scheduled_times_container);
+            tvClearAll = findViewById(R.id.tv_clear_all);
+            btnManualPump = findViewById(R.id.btn_manual_pump);
+            etWaterAmount = findViewById(R.id.et_water_amount);
+            tvPumpStatus = findViewById(R.id.tv_pump_status);
+            btnBackPump = findViewById(R.id.btnBackPump);
+            tvCurrentMoisture = findViewById(R.id.tv_current_moisture);
 
-        // Cập nhật độ ẩm đất ban đầu
-        tvCurrentMoisture.setText(currentMoisture + " %");
-        tvPumpStatus.setVisibility(TextView.GONE);
+            // If some views are missing, avoid NPEs by checking null before use later.
+            if (tvPumpStatus != null) tvPumpStatus.setVisibility(View.GONE);
 
-        // ➕ Thêm giờ bơm tự động
-        btnAddTime.setOnClickListener(v -> showTimePickerDialog());
+            // Firebase init
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+            camBienRef = mDatabase.child("CamBien");
+            camActuatorPumpRef = mDatabase.child("CamActuator").child("Bom");
 
-        // 🗑️ Xóa tất cả lịch bơm
-        tvClearAll.setOnClickListener(v -> {
-            llScheduledTimesContainer.removeAllViews();
-            Toast.makeText(this, "Đã xóa tất cả giờ bơm!", Toast.LENGTH_SHORT).show();
-        });
+            // Bắt listener để cập nhật độ ẩm giống MainActivity
+            attachCamBienListener();
 
-        // 💧 Bơm thủ công
-        btnManualPump.setOnClickListener(v -> startManualPump());
+            // ➕ Thêm giờ bơm tự động
+            if (btnAddTime != null) btnAddTime.setOnClickListener(v -> showTimePickerDialog());
 
-        // 🔙 Back button trong layout — dùng chung hành vi với back gesture
-        btnBackPump.setOnClickListener(v -> navigateBackToMain());
+            // 🗑️ Xóa tất cả lịch bơm
+            if (tvClearAll != null) tvClearAll.setOnClickListener(v -> {
+                if (llScheduledTimesContainer != null) llScheduledTimesContainer.removeAllViews();
+                Toast.makeText(this, "Đã xóa tất cả giờ bơm!", Toast.LENGTH_SHORT).show();
+            });
 
-        // =========================
-        // Back gesture & button: dùng OnBackPressedDispatcher (AndroidX)
-        // =========================
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                // gọi chung hàm điều hướng
-                navigateBackToMain();
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, callback);
+            // 💧 Bơm thủ công -> gửi lệnh lên Firebase thay vì chỉ mô phỏng client
+            if (btnManualPump != null) btnManualPump.setOnClickListener(v -> startManualPump());
+
+            // 🔙 Back button trong layout — dùng chung hành vi với back gesture
+            if (btnBackPump != null) btnBackPump.setOnClickListener(v -> navigateBackToMain());
+
+            // Back gesture & button: dùng OnBackPressedDispatcher (AndroidX)
+            OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+                @Override
+                public void handleOnBackPressed() {
+                    navigateBackToMain();
+                }
+            };
+            getOnBackPressedDispatcher().addCallback(this, callback);
+        } catch (Exception e) {
+            // catch unexpected exceptions during onCreate to avoid crash
+            Log.e(TAG, "onCreate error", e);
+            Toast.makeText(this, "Lỗi khởi tạo màn hình bơm: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // remove any pending pumping callbacks to avoid leaks
-        if (pumpingRunnable != null) handler.removeCallbacks(pumpingRunnable);
+        // remove Firebase listener to avoid leaks
+        try {
+            if (camBienRef != null && camBienListener != null) {
+                camBienRef.removeEventListener(camBienListener);
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "remove listener failed", e);
+        }
         handler.removeCallbacksAndMessages(null);
     }
 
     // =========================
-    // 💧 BƠM THỦ CÔNG
+    // 💧 BƠM THỦ CÔNG (gửi lệnh lên Firebase)
     // =========================
     private void startManualPump() {
         if (isPumping) {
             Toast.makeText(this, "Đang bơm. Vui lòng chờ hoàn tất.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (etWaterAmount == null) {
+            Toast.makeText(this, "Không tìm thấy ô nhập. Thử lại.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -117,61 +151,39 @@ public class PumpSettingActivity extends AppCompatActivity {
         }
 
         // Clamp target vào [0, 100]
-        if (target < 0) {
-            Toast.makeText(this, "⚠️ Giá trị tối thiểu là 0%.", Toast.LENGTH_SHORT).show();
-            target = 0;
-        }
-        if (target > 100) {
-            Toast.makeText(this, "⚠️ Giá trị vượt quá 100% — đã giới hạn về 100%.", Toast.LENGTH_SHORT).show();
-            target = 100;
-        }
+        if (target < 0) target = 0;
+        if (target > 100) target = 100;
 
         // Nếu mục tiêu <= hiện tại -> không cần bơm
-        if (target <= currentMoisture) {
+        if (target <= Math.round(currentMoisture)) {
             Toast.makeText(this, "✅ Độ ẩm hiện tại đã bằng hoặc cao hơn mục tiêu.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Bắt đầu bơm
-        isPumping = true;
-        btnManualPump.setEnabled(false);
-        etWaterAmount.setEnabled(false);
+        // Gửi lệnh lên Firebase: Bom/Command/TrangThai = "On", Bom/Command/TargetMoisture = target
+        try {
+            DatabaseReference cmdRef = mDatabase.child("Bom").child("Command");
+            cmdRef.child("TrangThai").setValue("On");
+            cmdRef.child("TargetMoisture").setValue(target);
+            cmdRef.child("ThoiGian").setValue(0);
+            Toast.makeText(this, "Gửi lệnh bơm tới hệ thống. Máy bơm sẽ hoạt động đến " + target + "%", Toast.LENGTH_SHORT).show();
 
-        tvPumpStatus.setVisibility(TextView.VISIBLE);
-        tvPumpStatus.setText("💧 Đang bơm... " + currentMoisture + "%");
-
-        simulatePumping(target);
-    }
-
-    private void simulatePumping(int target) {
-        final int[] progress = {currentMoisture};
-
-        pumpingRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (progress[0] < target) {
-                    progress[0]++;
-                    tvPumpStatus.setText("💧 Đang bơm... " + progress[0] + "%");
-                    handler.postDelayed(this, 150);
-                } else {
-                    tvPumpStatus.setText("✅ Đã đạt " + target + "% – Dừng bơm!");
-                    currentMoisture = target;
-                    tvCurrentMoisture.setText(currentMoisture + " %");
-                    handler.postDelayed(() -> {
-                        tvPumpStatus.setVisibility(TextView.GONE);
-                        isPumping = false;
-                        btnManualPump.setEnabled(true);
-                        etWaterAmount.setEnabled(true);
-                    }, 1500);
-                }
+            // Cập nhật UI tạm thời để người dùng thấy phản hồi
+            isPumping = true;
+            if (btnManualPump != null) btnManualPump.setEnabled(false);
+            if (etWaterAmount != null) etWaterAmount.setEnabled(false);
+            if (tvPumpStatus != null) {
+                tvPumpStatus.setVisibility(View.VISIBLE);
+                tvPumpStatus.setText("💧 Lệnh gửi: bơm tới " + target + "%");
             }
-        };
-
-        handler.postDelayed(pumpingRunnable, 150);
+        } catch (Exception e) {
+            Log.e(TAG, "send command error", e);
+            Toast.makeText(this, "❌ Lỗi gửi lệnh bơm: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     // =========================
-    // ⏰ BƠM TỰ ĐỘNG
+    // ⏰ BƠM TỰ ĐỘNG UI (lịch) - KHÔNG thay đổi
     // =========================
     private void showTimePickerDialog() {
         TimePickerDialog timePickerDialog = new TimePickerDialog(
@@ -255,14 +267,110 @@ public class PumpSettingActivity extends AppCompatActivity {
         tvDelete.setTextSize(18);
         tvDelete.setPadding(16, 0, 0, 0);
         tvDelete.setOnClickListener(v -> {
-            llScheduledTimesContainer.removeView(row);
+            if (llScheduledTimesContainer != null) llScheduledTimesContainer.removeView(row);
             Toast.makeText(this, "Đã xóa " + time, Toast.LENGTH_SHORT).show();
         });
 
         row.addView(clockIcon);
         row.addView(tvTime);
         row.addView(tvDelete);
-        llScheduledTimesContainer.addView(row);
+        if (llScheduledTimesContainer != null) llScheduledTimesContainer.addView(row);
+    }
+
+    // =========================
+    // Firebase: đọc CamBien giống MainActivity (an toàn)
+    // =========================
+    private void attachCamBienListener() {
+        camBienListener = new com.google.firebase.database.ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                try {
+                    if (snapshot == null || !snapshot.exists()) {
+                        if (tvCurrentMoisture != null) tvCurrentMoisture.setText("-- %");
+                        return;
+                    }
+
+                    Float soilPerc = null;
+
+                    DataSnapshot datSnap = snapshot.child("Dat");
+                    if (datSnap.exists()) {
+                        // 1) ưu tiên PhanTram
+                        Object phObj = datSnap.child("PhanTram").getValue();
+                        Double ph = tryParseDouble(phObj);
+                        if (ph != null) {
+                            soilPerc = ph.floatValue();
+                        } else {
+                            // 2) thử Analog
+                            Object analogObj = datSnap.child("Analog").getValue();
+                            Double analog = tryParseDouble(analogObj);
+                            if (analog != null) {
+                                soilPerc = (float) ((analog / 4095.0) * 100.0);
+                            }
+                        }
+                    }
+
+                    // 3) fallback: có thể CamBien/DoAmDat (legacy)
+                    if (soilPerc == null) {
+                        Object rootSoilObj = snapshot.child("DoAmDat").getValue();
+                        Double rootSoil = tryParseDouble(rootSoilObj);
+                        if (rootSoil != null) soilPerc = rootSoil.floatValue();
+                    }
+
+                    if (soilPerc != null) {
+                        if (soilPerc < 0) soilPerc = 0f;
+                        if (soilPerc > 100) soilPerc = 100f;
+                        currentMoisture = soilPerc;
+                        if (tvCurrentMoisture != null)
+                            tvCurrentMoisture.setText(String.format(Locale.getDefault(), "%.0f %%", currentMoisture));
+                    } else {
+                        if (tvCurrentMoisture != null) tvCurrentMoisture.setText("-- %");
+                    }
+
+                    // Check pump state from CamActuator/Bom/TrangThai asynchronously.
+                    camActuatorPumpRef.child("TrangThai").get().addOnSuccessListener(dataSnapshot -> {
+                        try {
+                            String val = dataSnapshot.getValue(String.class);
+                            if (val != null && val.equalsIgnoreCase("Off")) {
+                                if (isPumping) {
+                                    isPumping = false;
+                                    if (btnManualPump != null) btnManualPump.setEnabled(true);
+                                    if (etWaterAmount != null) etWaterAmount.setEnabled(true);
+                                    if (tvPumpStatus != null) tvPumpStatus.setVisibility(View.GONE);
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.w(TAG, "Error processing pump state success", e);
+                        }
+                    }).addOnFailureListener(e -> {
+                        // ignore failure to read pump state
+                        Log.w(TAG, "Failed to read CamActuator/Bom/TrangThai", e);
+                    });
+
+                } catch (Exception ex) {
+                    Log.e(TAG, "onDataChange handling error", ex);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "camBien listener cancelled", error.toException());
+                if (tvCurrentMoisture != null) tvCurrentMoisture.setText("-- %");
+            }
+        };
+
+        if (camBienRef != null) camBienRef.addValueEventListener(camBienListener);
+    }
+
+    private Double tryParseDouble(Object o) {
+        if (o == null) return null;
+        try {
+            if (o instanceof Double) return (Double) o;
+            if (o instanceof Long) return ((Long) o).doubleValue();
+            if (o instanceof Integer) return ((Integer) o).doubleValue();
+            if (o instanceof Float) return ((Float) o).doubleValue();
+            if (o instanceof String) return Double.parseDouble((String) o);
+        } catch (Exception ignored) {}
+        return null;
     }
 
     // Common navigate back method used by both back button and gesture

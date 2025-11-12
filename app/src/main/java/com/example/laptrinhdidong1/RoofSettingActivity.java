@@ -9,6 +9,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class RoofSettingActivity extends AppCompatActivity {
 
@@ -16,15 +18,19 @@ public class RoofSettingActivity extends AppCompatActivity {
     private TextView tvRoofStatusLabel, tvTempThreshold, tvLightThreshold;
     private SeekBar seekTemp, seekLight;
     private ImageView btnBack;
+
     private int tempThreshold = 30;
     private int lightThreshold = 60;
+
+    // 🔥 Firebase reference
+    private DatabaseReference dbRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_roof_setting);
 
-        // 🔹 Ánh xạ View
+        // ========== ÁNH XẠ VIEW ==========
         btnBack = findViewById(R.id.btnBack);
         swRoof = findViewById(R.id.swRoof);
         swAutoModeRoof = findViewById(R.id.swAutoModeRoof);
@@ -34,24 +40,31 @@ public class RoofSettingActivity extends AppCompatActivity {
         seekTemp = findViewById(R.id.seekTemp);
         seekLight = findViewById(R.id.seekLight);
 
-        // 🔙 Quay lại MainActivity
+        // ========== KẾT NỐI FIREBASE ==========
+        dbRef = FirebaseDatabase.getInstance().getReference("HeThongMaiChe");
+
+        // 🔙 Nút quay lại
         btnBack.setOnClickListener(v -> {
             Intent intent = new Intent(RoofSettingActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         });
 
-        // 🚪 Mở / Đóng thủ công
+        // 🚪 Bật / Tắt mái che THỦ CÔNG
         swRoof.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 tvRoofStatusLabel.setText("Trạng thái: ĐANG MỞ 🌤️");
+                dbRef.child("TrangThai").setValue("Mo");
             } else {
                 tvRoofStatusLabel.setText("Trạng thái: ĐANG ĐÓNG 🌧️");
+                dbRef.child("TrangThai").setValue("Dong");
             }
         });
 
-        // 🤖 Chế độ tự động
+        // ⚙️ Bật / Tắt chế độ tự động
         swAutoModeRoof.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            dbRef.child("AutoMode").setValue(isChecked);
+
             if (isChecked) {
                 swRoof.setEnabled(false);
                 seekTemp.setEnabled(true);
@@ -65,27 +78,49 @@ public class RoofSettingActivity extends AppCompatActivity {
             }
         });
 
-        // 🌡️ Điều chỉnh nhiệt độ
+        // 🌡️ Thanh điều chỉnh NGƯỠNG NHIỆT ĐỘ
+        seekTemp.setMax(50);
+        seekTemp.setProgress(tempThreshold);
+        tvTempThreshold.setText("Ngưỡng nhiệt độ: " + tempThreshold + "°C");
+
         seekTemp.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 tempThreshold = progress;
                 tvTempThreshold.setText("Ngưỡng nhiệt độ: " + tempThreshold + "°C");
             }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                dbRef.child("NguongNhietDo").setValue(tempThreshold);
+            }
         });
 
-        // ☀️ Điều chỉnh ánh sáng
+        // ☀️ Thanh điều chỉnh NGƯỠNG ÁNH SÁNG
+        seekLight.setMax(100);
+        seekLight.setProgress(lightThreshold);
+        tvLightThreshold.setText("Ngưỡng ánh sáng: " + lightThreshold + "%");
+
         seekLight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 lightThreshold = progress;
                 tvLightThreshold.setText("Ngưỡng ánh sáng: " + lightThreshold + "%");
             }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                dbRef.child("NguongAnhSang").setValue(lightThreshold);
+            }
         });
 
-        // 🔒 Mặc định: khóa thanh khi chưa bật tự động
+        // 🔒 Khóa SeekBar khi chưa bật tự động
         seekTemp.setEnabled(false);
         seekLight.setEnabled(false);
     }
