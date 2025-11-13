@@ -34,7 +34,6 @@
         android:clipToPadding="false">
 
         <LinearLayout
-            android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -163,10 +162,10 @@
                             android:textColor="#145A32" />
                     </LinearLayout>
 
+                    <!-- Hiển thị độ ẩm hiện tại -->
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
                         android:text="Độ ẩm đất hiện tại:"
                         android:textColor="#1B4332"
                         android:textSize="16sp" />
@@ -175,36 +174,29 @@
                         android:id="@+id/tv_current_moisture"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
                         android:text="-- %"
                         android:textSize="22sp"
                         android:textStyle="bold"
-                        android:textColor="#27AE60" />
+                        android:textColor="#27AE60"
+                        android:layout_marginBottom="16dp" />
 
-                    <!-- Ô nhập độ ẩm + nút BƠM -->
+                    <!-- Ô nhập độ ẩm + 2 nút điều khiển -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="4dp">
+                        android:gravity="center_vertical">
 
                         <!-- Ô nhập -->
                         <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/til_water_amount"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
                             android:hint="Độ ẩm muốn bơm (%)"
                             app:boxBackgroundMode="outline"
-                            app:boxCornerRadiusTopStart="24dp"
-                            app:boxCornerRadiusBottomStart="24dp"
-                            app:boxCornerRadiusTopEnd="24dp"
-                            app:boxCornerRadiusBottomEnd="24dp"
                             app:boxStrokeColor="#27AE60"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="2dp">
+                            app:boxCornerRadiusTopStart="16dp"
+                            app:boxCornerRadiusBottomEnd="16dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_water_amount"
@@ -217,18 +209,29 @@
                                 android:gravity="center_vertical" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <!-- ✅ Nút BƠM -->
+                        <!-- ✅ BƠM -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_manual_pump"
-                            android:layout_width="80dp"
+                            android:layout_width="70dp"
                             android:layout_height="48dp"
+                            android:layout_marginStart="6dp"
                             android:text="BƠM"
-                            android:layout_marginStart="8dp"
                             android:backgroundTint="#27AE60"
                             android:textColor="@android:color/white"
                             android:textSize="14sp"
-                            app:cornerRadius="24dp"
-                            android:elevation="2dp" />
+                            app:cornerRadius="24dp" />
+
+                        <!-- ❌ TẮT -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_stop_pump"
+                            android:layout_width="70dp"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="6dp"
+                            android:text="TẮT"
+                            android:backgroundTint="#C0392B"
+                            android:textColor="@android:color/white"
+                            android:textSize="14sp"
+                            app:cornerRadius="24dp" />
                     </LinearLayout>
 
                     <TextView
