@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.firebase.database.*;
 
 import java.util.ArrayList;
@@ -17,14 +18,13 @@ import java.util.Collections;
 
 public class LightHistoryActivity extends AppCompatActivity {
 
-    // 🔹 THAY ĐỔI: Sử dụng RecyclerView
-    private RecyclerView rvHistory;
-    private TextView tvNoData;
+    private RecyclerView rv;
     private LightHistoryAdapter adapter;
-    private ArrayList<LightHistoryItem> historyList = new ArrayList<>();
-    // 🔹 KẾT THÚC THAY ĐỔI
+    private ArrayList<LightHistoryItem> list = new ArrayList<>();
 
+    private TextView tvNoData;
     private ImageView btnBack;
+
     private DatabaseReference db;
 
     @Override
@@ -32,83 +32,57 @@ public class LightHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_light_history);
 
-        // 🔗 Ánh xạ view
-        // 🔹 THAY ĐỔI: Ánh xạ view mới
-        rvHistory = findViewById(R.id.rv_light_history);
+        rv = findViewById(R.id.rv_light_history);
         tvNoData = findViewById(R.id.tv_no_data);
-        btnBack = findViewById(R.id.btnBackLight);
-        // 🔹 KẾT THÚC THAY ĐỔI
+        btnBack = findViewById(R.id.btnBack);
 
-        // 🔥 Kết nối đúng node "LichSu"
+        btnBack.setOnClickListener(v -> finish());
+
+        rv.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new LightHistoryAdapter(list);
+        rv.setAdapter(adapter);
+
         db = FirebaseDatabase.getInstance().getReference("LichSu");
 
-        // 🔙 Nút quay lại
-        btnBack.setOnClickListener(v -> onBackPressed());
-
-        // 🚀 Setup RecyclerView
-        setupRecyclerView();
-
-        // 📜 Tải lịch sử
-        loadHistory();
+        loadData();
     }
 
-    private void setupRecyclerView() {
-        rvHistory.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new LightHistoryAdapter(this, historyList);
-        rvHistory.setAdapter(adapter);
-    }
-
-    private void loadHistory() {
+    private void loadData() {
         db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                historyList.clear();
+
+                list.clear();
 
                 if (!snapshot.exists()) {
-                    // 🔹 THAY ĐỔI: Hiển thị thông báo "No Data"
                     tvNoData.setVisibility(View.VISIBLE);
-                    rvHistory.setVisibility(View.GONE);
-                    // 🔹 KẾT THÚC THAY ĐỔI
+                    rv.setVisibility(View.GONE);
                     return;
                 }
 
-                // 🔹 THAY ĐỔI: Ẩn thông báo "No Data"
                 tvNoData.setVisibility(View.GONE);
-                rvHistory.setVisibility(View.VISIBLE);
-                // 🔹 KẾT THÚC THAY ĐỔI
+                rv.setVisibility(View.VISIBLE);
 
-                // Duyệt qua từng bản ghi thời gian
-                for (DataSnapshot timeSnap : snapshot.getChildren()) {
-                    String time = timeSnap.getKey();
+                for (DataSnapshot snap : snapshot.getChildren()) {
 
-                    // Lấy dữ liệu từ sub-node "AnhSang"
-                    String trangThai = timeSnap.child("AnhSang/TrangThai").getValue(String.class);
-                    Integer phanTram = timeSnap.child("AnhSang/PhanTram").getValue(Integer.class);
+                    String time = snap.getKey();
 
-                    if (trangThai != null) {
-                        // 🔹 THAY ĐỔI: Thêm vào list cho RecyclerView
-                        historyList.add(new LightHistoryItem(time, trangThai, phanTram));
-                        // 🔹 KẾT THÚC THAY ĐỔI
+                    String st = snap.child("AnhSang/TrangThai").getValue(String.class);
+                    Long analog = snap.child("AnhSang/Analog").getValue(Long.class);
+
+                    if (st != null && analog != null) {
+                        list.add(new LightHistoryItem(time, st, analog.intValue()));
                     }
                 }
 
-                // 🔹 THAY ĐỔI: Đảo ngược list để hiển thị mục mới nhất lên đầu
-                Collections.reverse(historyList);
-                // Thông báo cho adapter biết dữ liệu đã thay đổi
+                Collections.reverse(list);
                 adapter.notifyDataSetChanged();
-                // 🔹 KẾT THÚC THAY ĐỔI
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(LightHistoryActivity.this, "❌ Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
-                tvNoData.setText("❌ Lỗi tải dữ liệu");
-                tvNoData.setVisibility(View.VISIBLE);
-                rvHistory.setVisibility(View.GONE);
+                Toast.makeText(LightHistoryActivity.this, "Lỗi!", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-    // ⛔ KHÔNG CẦN HÀM NÀY NỮA ⛔
-    // private void addText(String text) { ... }
 }

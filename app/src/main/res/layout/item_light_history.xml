@@ -6,19 +6,27 @@
     android:padding="12dp">
 
     <TextView
-        android:id="@+id/tv_soil_time"
+        android:id="@+id/tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Time"
+        android:text="2025-11-13 12:40:02"
         android:textStyle="bold"
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/tv_soil_percent"
+        android:id="@+id/tv_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0%"
+        android:text="Sáng"
         android:textSize="15sp"
-        android:layout_marginTop="6dp" />
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@+id/tv_analog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Analog: 1234"
+        android:textSize="15sp"
+        android:layout_marginTop="2dp"/>
 
 </LinearLayout>

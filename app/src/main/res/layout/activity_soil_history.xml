@@ -3,43 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp">
 
-    <!-- Nút Back -->
     <ImageView
-        android:id="@+id/btnBackSoil"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:src="@drawable/ic_arrow_back"
-        android:padding="4dp" />
+        android:id="@+id/btnBack"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="6dp"
+        android:src="@drawable/ic_arrow_back" />
 
-    <!-- Tiêu đề -->
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/tv_no_data"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="📊 Lịch sử độ ẩm đất"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginTop="12dp" />
+        android:text="Không có dữ liệu"
+        android:textSize="18sp"
+        android:visibility="gone"
+        android:layout_marginTop="10dp" />
 
-    <!-- Text thông báo khi không có data -->
-    <TextView
-        android:id="@+id/tv_no_data_soil"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="⚠️ Chưa có lịch sử"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
-        android:visibility="gone" />
-
-    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_soil_history"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp" />
 
 </LinearLayout>

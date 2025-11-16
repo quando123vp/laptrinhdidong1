@@ -1,34 +1,50 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="#E9F7EF">
 
+    <!-- 🔙 Nút quay lại -->
     <ImageView
         android:id="@+id/btnBackRain"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_circle_white"
+        android:padding="6dp"
         android:src="@drawable/ic_arrow_back"
-        android:contentDescription="Quay lại"
-        android:layout_gravity="start"
-        android:padding="4dp" />
+        app:tint="#2C3E50"
+        android:contentDescription="Back" />
 
+    <!-- 🧾 Tiêu đề -->
     <TextView
+        android:id="@+id/tvTitleRain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="🌧️ Lịch sử Thời tiết"
-        android:textSize="20sp"
+        android:text="LỊCH SỬ MƯA"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginTop="12dp"/>
+        android:textColor="#145A32"
+        android:layout_marginTop="16dp"
+        android:layout_below="@id/btnBackRain" />
 
+    <!-- 📜 Scroll chứa nội dung -->
     <ScrollView
+        android:id="@+id/scrollRain"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:layout_below="@id/tvTitleRain"
+        android:padding="12dp">
+
         <LinearLayout
             android:id="@+id/ll_rain_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />
+
     </ScrollView>
-</LinearLayout>
+
+</RelativeLayout>

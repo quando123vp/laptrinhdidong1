@@ -19,34 +19,27 @@ import android.view.View;
 
 import com.google.firebase.database.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
-/**
- * RainHistoryActivity - hiển thị lịch sử mưa từ node "LichSu"
- * Layout: res/layout/activity_rain_history.xml (ScrollView + LinearLayout id=ll_rain_history)
- * Back button id: btnBackRain
- */
 public class RainHistoryActivity extends AppCompatActivity {
 
     private LinearLayout llContainer;
     private ImageView btnBack;
     private DatabaseReference dbRef;
+
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
-    private static class RainItem {
-        String timeKey;
-        long timestamp;
+    static class RainItem {
+        String timeStr;
+        long timeMillis;
         String trangThai;
 
-        RainItem(String timeKey, long timestamp, String trangThai) {
-            this.timeKey = timeKey;
-            this.timestamp = timestamp;
-            this.trangThai = trangThai;
+        RainItem(String ts, long ms, String tt) {
+            this.timeStr = ts;
+            this.timeMillis = ms;
+            this.trangThai = tt;
         }
     }
 
@@ -58,203 +51,132 @@ public class RainHistoryActivity extends AppCompatActivity {
         llContainer = findViewById(R.id.ll_rain_history);
         btnBack = findViewById(R.id.btnBackRain);
 
-        if (llContainer == null) {
-            Toast.makeText(this, "Layout thiếu ll_rain_history", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
-        // Back gesture support
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() { finish(); }
+            @Override public void handleOnBackPressed() { finish(); }
         });
 
         dbRef = FirebaseDatabase.getInstance().getReference("LichSu");
-        loadRainHistory();
+        loadHistory();
     }
 
-    private void loadRainHistory() {
+    private void loadHistory() {
         llContainer.removeAllViews();
-        addCenteredText("Đang tải dữ liệu...", 16);
+        addCenteredText("Đang tải dữ liệu...");
 
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                llContainer.removeAllViews();
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
 
+                llContainer.removeAllViews();
                 if (!snapshot.exists()) {
-                    addCenteredText("⚠️ Chưa có dữ liệu lịch sử thời tiết", 16);
+                    addCenteredText("⚠️ Chưa có dữ liệu lịch sử!");
                     return;
                 }
 
                 ArrayList<RainItem> list = new ArrayList<>();
 
-                for (DataSnapshot timeSnap : snapshot.getChildren()) {
-                    String timeKey = timeSnap.getKey();
-                    long timestamp = 0;
-                    if (timeSnap.child("timestamp").exists()) {
-                        Object tsObj = timeSnap.child("timestamp").getValue();
-                        if (tsObj instanceof Long) timestamp = (Long) tsObj;
-                        else if (tsObj instanceof Integer) timestamp = ((Integer) tsObj).longValue();
-                        else if (tsObj instanceof String) {
-                            try { timestamp = Long.parseLong((String) tsObj); } catch (Exception ignored) {}
-                        }
-                    }
+                for (DataSnapshot snap : snapshot.getChildren()) {
 
-                    // Lấy trạng thái mưa (ưu tiên Mua/TrangThai)
-                    String trangThai = null;
-                    DataSnapshot mua = timeSnap.child("Mua");
-                    if (mua.exists()) {
-                        trangThai = mua.child("TrangThai").getValue(String.class);
-                    }
-                    // fallback: root key "TrangThaiMua"
-                    if ((trangThai == null || trangThai.isEmpty())) {
-                        String rootStatus = timeSnap.child("TrangThaiMua").getValue(String.class);
-                        if (rootStatus != null && !rootStatus.isEmpty()) trangThai = rootStatus;
-                    }
+                    String timeStr = snap.getKey();
+                    if (timeStr == null) continue;
 
-                    if (trangThai != null && !trangThai.isEmpty()) {
-                        list.add(new RainItem(timeKey, timestamp, trangThai));
-                    }
+                    long millis = parseTime(timeStr);
+
+                    // lấy trạng thái từ đúng cấu trúc ESP32 gửi
+                    String tt = snap.child("Mua/TrangThai").getValue(String.class);
+
+                    if (tt == null) continue;
+
+                    list.add(new RainItem(timeStr, millis, tt));
                 }
 
-                // sort newest first
-                Collections.sort(list, new Comparator<RainItem>() {
-                    @Override
-                    public int compare(RainItem a, RainItem b) {
-                        if (a.timestamp > 0 && b.timestamp > 0)
-                            return Long.compare(b.timestamp, a.timestamp);
-                        if (a.timestamp > 0 && b.timestamp == 0) return -1;
-                        if (b.timestamp > 0 && a.timestamp == 0) return 1;
-                        if (a.timeKey != null && b.timeKey != null) return b.timeKey.compareTo(a.timeKey);
-                        return 0;
-                    }
-                });
-
                 if (list.isEmpty()) {
-                    addCenteredText("⚠️ Không tìm thấy mục Mua trong lịch sử", 16);
+                    addCenteredText("⚠️ Không có dữ liệu Mưa!");
                     return;
                 }
 
-                // render sorted list
-                for (RainItem it : list) addRainCard(it.timeKey, it.timestamp, it.trangThai);
+                // sort mới nhất trên đầu
+                Collections.sort(list, (a, b) -> Long.compare(b.timeMillis, a.timeMillis));
+
+                for (RainItem it : list) addCard(it);
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            @Override public void onCancelled(@NonNull DatabaseError error) {
                 llContainer.removeAllViews();
-                addCenteredText("❌ Lỗi tải dữ liệu", 16);
-                Toast.makeText(RainHistoryActivity.this, "Lỗi: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                addCenteredText("❌ Lỗi tải dữ liệu!");
             }
         });
     }
 
-    /**
-     * Thêm 1 CardView cho mỗi mục mưa: icon + time + trạng thái.
-     * Không hiển thị Analog.
-     */
-    private void addRainCard(String timeKey, long timestamp, String trangThai) {
-        // CardView container
+    private long parseTime(String s) {
+        try { return sdf.parse(s).getTime(); }
+        catch (Exception e) { return 0; }
+    }
+
+    private void addCard(RainItem it) {
         CardView card = new CardView(this);
-        LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        cardLp.setMargins(dp(8), dp(8), dp(8), dp(8));
-        card.setLayoutParams(cardLp);
+        lp.setMargins(dp(8), dp(8), dp(8), dp(8));
+        card.setLayoutParams(lp);
         card.setRadius(dp(12));
         card.setCardElevation(dp(3));
 
-        // normalize status string
-        String stRaw = (trangThai == null ? "" : trangThai.trim());
-        String st = stRaw.toLowerCase(Locale.ROOT);
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.HORIZONTAL);
+        box.setPadding(dp(12), dp(12), dp(12), dp(12));
+        card.addView(box);
 
-        // chọn nền theo trạng thái chính xác
-        // => kiểm tra "không/khong" TRƯỚC (để không bị trùng với "mưa")
-        if (st.contains("không") || st.contains("khong")) {
+        ImageView icon = new ImageView(this);
+        icon.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
+        icon.setPadding(0, 0, dp(12), 0);
+
+        // icon chọn theo trạng thái
+        String st = it.trangThai.toLowerCase();
+
+        if (st.contains("không")) {
+            icon.setImageResource(R.drawable.ic_sunny);
             card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.noRainGreenBackground));
-        } else if (st.contains("có mưa") || st.contains("co mua") || (st.contains("mưa") && !st.contains("không") && !st.contains("khong"))) {
+        } else {
+            icon.setImageResource(R.drawable.ic_rain);
             card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.rainBlueBackground));
-        } else {
-            card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.lightGrayBackground));
         }
 
-        // row: icon + texts
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setPadding(dp(12), dp(12), dp(12), dp(12));
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        card.addView(row);
+        box.addView(icon);
 
-        // icon
-        ImageView iv = new ImageView(this);
-        LinearLayout.LayoutParams ivLp = new LinearLayout.LayoutParams(dp(40), dp(40));
-        ivLp.setMargins(0, 0, dp(12), 0);
-        iv.setLayoutParams(ivLp);
-
-        // chọn icon và tint theo trạng thái (kiểm tra "không" trước)
-        if (st.contains("không") || st.contains("khong")) {
-            iv.setImageResource(R.drawable.ic_sunny);
-            iv.setColorFilter(ContextCompat.getColor(this, R.color.iconOrange));
-        } else if (st.contains("có mưa") || st.contains("co mua") || (st.contains("mưa") && !st.contains("không") && !st.contains("khong"))) {
-            iv.setImageResource(R.drawable.ic_rain);
-            iv.setColorFilter(ContextCompat.getColor(this, R.color.primaryBlue));
-        } else {
-            iv.setImageResource(R.drawable.ic_cloud);
-            iv.setColorFilter(ContextCompat.getColor(this, R.color.text_secondary));
-        }
-        row.addView(iv);
-
-        // texts vertical
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
-        col.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        row.addView(col);
+        box.addView(col);
 
-        // time (bold)
         TextView tvTime = new TextView(this);
+        tvTime.setText(it.timeStr);
         tvTime.setTypeface(Typeface.DEFAULT_BOLD);
-        tvTime.setTextSize(14);
-        tvTime.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
-        String timeStr;
-        if (timestamp > 0) {
-            try { timeStr = sdf.format(new Date(timestamp * 1000L)); }
-            catch (Exception e) { timeStr = (timeKey != null ? timeKey.replace('_', ' ') : ""); }
-        } else {
-            timeStr = (timeKey != null ? timeKey.replace('_', ' ') : "");
-        }
-        tvTime.setText(timeStr);
+        tvTime.setTextSize(15);
         col.addView(tvTime);
 
-        // status line
         TextView tvStatus = new TextView(this);
-        tvStatus.setTextSize(15);
-        tvStatus.setTextColor(ContextCompat.getColor(this, R.color.primaryBlue));
-        tvStatus.setPadding(0, dp(6), 0, 0);
-        tvStatus.setText("Trạng thái: " + (trangThai == null ? "--" : trangThai));
+        tvStatus.setText("Trạng thái: " + it.trangThai);
+        tvStatus.setTextSize(16);
+        tvStatus.setPadding(0, dp(4), 0, 0);
         col.addView(tvStatus);
 
-        // add to container
         llContainer.addView(card);
     }
 
-    private void addCenteredText(String text, int sizeSp) {
+    private void addCenteredText(String msg) {
         TextView t = new TextView(this);
-        t.setText(text);
-        t.setTextSize(sizeSp);
-        t.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+        t.setGravity(Gravity.CENTER);
+        t.setText(msg);
+        t.setTextSize(16);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(dp(8), dp(10), dp(8), dp(10));
+        lp.setMargins(dp(8), dp(8), dp(8), dp(8));
         t.setLayoutParams(lp);
-        t.setGravity(Gravity.CENTER);
         llContainer.addView(t);
     }
 
     private int dp(int v) {
-        float scale = getResources().getDisplayMetrics().density;
-        return Math.round(v * scale);
+        return Math.round(v * getResources().getDisplayMetrics().density);
     }
 }

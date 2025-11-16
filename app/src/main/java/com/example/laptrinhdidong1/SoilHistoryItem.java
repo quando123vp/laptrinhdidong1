@@ -2,10 +2,10 @@ package com.example.laptrinhdidong1;
 
 public class SoilHistoryItem {
     public String time;
-    public Integer phanTram;
+    public int percent;
 
-    public SoilHistoryItem(String time, Integer phanTram) {
+    public SoilHistoryItem(String time, int percent) {
         this.time = time;
-        this.phanTram = phanTram;
+        this.percent = percent;
     }
 }

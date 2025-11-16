@@ -1,80 +1,53 @@
 package com.example.laptrinhdidong1;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
+import java.util.ArrayList;
 
-// 🔹 LỚP CHA BẮT ĐẦU TẠI ĐÂY
-public class LightHistoryAdapter extends RecyclerView.Adapter<LightHistoryAdapter.HistoryViewHolder> {
+public class LightHistoryAdapter extends RecyclerView.Adapter<LightHistoryAdapter.Holder> {
 
-    private Context context;
-    private List<LightHistoryItem> historyList;
+    private ArrayList<LightHistoryItem> list;
 
-    public LightHistoryAdapter(Context context, List<LightHistoryItem> historyList) {
-        this.context = context;
-        this.historyList = historyList;
+    public LightHistoryAdapter(ArrayList<LightHistoryItem> list) {
+        this.list = list;
     }
 
     @NonNull
     @Override
-    public HistoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_light_history, parent, false);
-        return new HistoryViewHolder(view);
+    public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new Holder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_light_history, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
-        LightHistoryItem item = historyList.get(position);
+    public void onBindViewHolder(@NonNull Holder h, int i) {
+        LightHistoryItem it = list.get(i);
 
-        holder.tvTimestamp.setText(item.getTimestamp());
-        Integer percentage = item.getPercentage(); // Lấy %
-
-        // Tạo chuỗi chi tiết
-        String details = item.getStatus();
-        if (percentage != null) {
-            details += " (" + percentage + "%)";
-        }
-        holder.tvLightDetails.setText(details);
-
-        // --- Logic đổi màu icon ---
-        int iconColor;
-        if (percentage != null && percentage == 0) {
-            // Nếu là 0% (Tối), dùng màu đen (text_primary)
-            iconColor = ContextCompat.getColor(context, R.color.text_primary);
-        } else {
-            // Mặc định hoặc 100% (Sáng), dùng màu vàng (iconYellow)
-            iconColor = ContextCompat.getColor(context, R.color.iconYellow);
-        }
-        holder.ivLightIcon.setColorFilter(iconColor);
-        // --- Kết thúc logic đổi màu ---
+        h.tvTime.setText(it.time);
+        h.tvStatus.setText(it.status);
+        h.tvAnalog.setText("Analog: " + it.analog);
     }
 
     @Override
     public int getItemCount() {
-        return historyList.size();
+        return list.size();
     }
 
-    // 🔹 LỚP NỘI BỘ (INNER CLASS) NẰM BÊN TRONG LỚP CHA
-    // Lỗi của bạn là do đặt lớp này BÊN NGOÀI
-    public static class HistoryViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTimestamp, tvLightDetails;
-        ImageView ivLightIcon;
+    class Holder extends RecyclerView.ViewHolder {
 
-        public HistoryViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tvTimestamp = itemView.findViewById(R.id.tv_timestamp);
-            tvLightDetails = itemView.findViewById(R.id.tv_light_details);
-            ivLightIcon = itemView.findViewById(R.id.iv_icon_light);
+        TextView tvTime, tvStatus, tvAnalog;
+
+        Holder(@NonNull View v) {
+            super(v);
+            tvTime = v.findViewById(R.id.tv_time);
+            tvStatus = v.findViewById(R.id.tv_status);
+            tvAnalog = v.findViewById(R.id.tv_analog);
         }
     }
-
-} // 🔹 DẤU NGOẶC NHỌN ĐÓNG CỦA LỚP CHA 'LightHistoryAdapter'
+}

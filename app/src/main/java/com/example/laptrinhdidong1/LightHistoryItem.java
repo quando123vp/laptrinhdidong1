@@ -1,25 +1,13 @@
 package com.example.laptrinhdidong1;
 
 public class LightHistoryItem {
-    private String timestamp;
-    private String status;
-    private Integer percentage; // Dùng Integer để có thể là null
+    public String time;
+    public String status;
+    public int analog;
 
-    public LightHistoryItem(String timestamp, String status, Integer percentage) {
-        this.timestamp = timestamp;
+    public LightHistoryItem(String time, String status, int analog) {
+        this.time = time;
         this.status = status;
-        this.percentage = percentage;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public Integer getPercentage() {
-        return percentage;
+        this.analog = analog;
     }
 }

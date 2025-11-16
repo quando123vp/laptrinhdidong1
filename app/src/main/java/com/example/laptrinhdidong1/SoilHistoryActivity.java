@@ -18,12 +18,12 @@ import java.util.Collections;
 
 public class SoilHistoryActivity extends AppCompatActivity {
 
-    private RecyclerView rvHistory;
+    private RecyclerView rv;
+    private SoilHistoryAdapter adapter;
+    private ArrayList<SoilHistoryItem> list = new ArrayList<>();
+
     private TextView tvNoData;
     private ImageView btnBack;
-
-    private ArrayList<SoilHistoryItem> historyList = new ArrayList<>();
-    private SoilHistoryAdapter adapter;
 
     private DatabaseReference db;
 
@@ -32,58 +32,53 @@ public class SoilHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_soil_history);
 
-        rvHistory = findViewById(R.id.rv_soil_history);
-        tvNoData = findViewById(R.id.tv_no_data_soil);
-        btnBack = findViewById(R.id.btnBackSoil);
+        rv = findViewById(R.id.rv_soil_history);
+        tvNoData = findViewById(R.id.tv_no_data);
+        btnBack = findViewById(R.id.btnBack);
+
+        btnBack.setOnClickListener(v -> finish());
+
+        rv.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new SoilHistoryAdapter(list);
+        rv.setAdapter(adapter);
 
         db = FirebaseDatabase.getInstance().getReference("LichSu");
 
-        btnBack.setOnClickListener(v -> onBackPressed());
-
-        setupRecyclerView();
-        loadHistory();
+        loadData();
     }
 
-    private void setupRecyclerView() {
-        rvHistory.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new SoilHistoryAdapter(this, historyList);
-        rvHistory.setAdapter(adapter);
-    }
-
-    private void loadHistory() {
+    private void loadData() {
         db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                historyList.clear();
+                list.clear();
 
                 if (!snapshot.exists()) {
                     tvNoData.setVisibility(View.VISIBLE);
-                    rvHistory.setVisibility(View.GONE);
+                    rv.setVisibility(View.GONE);
                     return;
                 }
 
                 tvNoData.setVisibility(View.GONE);
-                rvHistory.setVisibility(View.VISIBLE);
+                rv.setVisibility(View.VISIBLE);
 
-                for (DataSnapshot timeSnap : snapshot.getChildren()) {
+                for (DataSnapshot snap : snapshot.getChildren()) {
 
-                    String time = timeSnap.getKey();
+                    String time = snap.getKey();
+                    Long percent = snap.child("Dat").getValue(Long.class);
 
-                    Integer phanTram = timeSnap.child("DoAmDat/PhanTram").getValue(Integer.class);
-
-                    if (phanTram != null) {
-                        historyList.add(new SoilHistoryItem(time, phanTram));
+                    if (percent != null) {
+                        list.add(new SoilHistoryItem(time, percent.intValue()));
                     }
                 }
 
-                Collections.reverse(historyList);
+                Collections.reverse(list);
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(SoilHistoryActivity.this, "❌ Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SoilHistoryActivity.this, "Lỗi tải!", Toast.LENGTH_SHORT).show();
             }
         });
     }
