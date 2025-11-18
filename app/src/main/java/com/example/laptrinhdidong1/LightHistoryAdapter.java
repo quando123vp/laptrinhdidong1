@@ -3,6 +3,7 @@ package com.example.laptrinhdidong1;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,8 +22,9 @@ public class LightHistoryAdapter extends RecyclerView.Adapter<LightHistoryAdapte
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new Holder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_light_history, parent, false));
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_light_history, parent, false);
+        return new Holder(v);
     }
 
     @Override
@@ -30,8 +32,13 @@ public class LightHistoryAdapter extends RecyclerView.Adapter<LightHistoryAdapte
         LightHistoryItem it = list.get(i);
 
         h.tvTime.setText(it.time);
-        h.tvStatus.setText(it.status);
-        h.tvAnalog.setText("Analog: " + it.analog);
+        h.tvStatus.setText("Trạng thái: " + it.status);
+
+        if (it.status.equalsIgnoreCase("Sáng")) {
+            h.icon.setImageResource(R.drawable.ic_sun);
+        } else {
+            h.icon.setImageResource(R.drawable.ic_moon);
+        }
     }
 
     @Override
@@ -39,15 +46,16 @@ public class LightHistoryAdapter extends RecyclerView.Adapter<LightHistoryAdapte
         return list.size();
     }
 
-    class Holder extends RecyclerView.ViewHolder {
+    static class Holder extends RecyclerView.ViewHolder {
 
-        TextView tvTime, tvStatus, tvAnalog;
+        TextView tvTime, tvStatus;
+        ImageView icon;
 
         Holder(@NonNull View v) {
             super(v);
-            tvTime = v.findViewById(R.id.tv_time);
-            tvStatus = v.findViewById(R.id.tv_status);
-            tvAnalog = v.findViewById(R.id.tv_analog);
+            icon = v.findViewById(R.id.icon_light);
+            tvTime = v.findViewById(R.id.tv_light_time);
+            tvStatus = v.findViewById(R.id.tv_light_status);
         }
     }
 }

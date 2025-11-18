@@ -22,7 +22,7 @@ public class TempHumidHistoryAdapter extends RecyclerView.Adapter<TempHumidHisto
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_sensor_temp_humid, parent, false);
+                .inflate(R.layout.item_temp_humid_history, parent, false); // Sửa layout ở đây
         return new Holder(v);
     }
 

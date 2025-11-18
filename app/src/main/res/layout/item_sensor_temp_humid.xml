@@ -4,7 +4,6 @@
     android:id="@+id/card_temp_humid"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="0dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:cardBackgroundColor="@color/lightGreenBackground">
@@ -12,48 +11,40 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="12dp">
+        android:padding="16dp">
 
-        <!-- Icon -->
         <ImageView
             android:id="@+id/icon_temp_humid"
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:src="@drawable/ic_temperature"
-            android:contentDescription="TempHumid Icon"
-            app:tint="@color/primaryBlue"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <!-- Temperature -->
         <TextView
             android:id="@+id/tv_temperature"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="25°C"
-            android:textSize="26sp"
+            android:text="--°C"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/primaryOrange"
-            android:includeFontPadding="false"
+            android:textColor="#FF9800"
             app:layout_constraintTop_toBottomOf="@id/icon_temp_humid"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="6dp" />
+            android:layout_marginTop="8dp" />
 
-        <!-- Humidity -->
         <TextView
             android:id="@+id/tv_humidity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="44%"
-            android:textSize="24sp"
+            android:text="--%"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/primaryBlue"
-            android:includeFontPadding="false"
+            android:textColor="#2196F3"
             app:layout_constraintTop_toBottomOf="@id/tv_temperature"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="2dp" />
+            android:layout_marginTop="4dp" />
 
-        <!-- Label -->
         <TextView
             android:id="@+id/tv_temp_humid_label"
             android:layout_width="wrap_content"
@@ -65,5 +56,4 @@
             app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.cardview.widget.CardView>

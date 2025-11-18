@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- TIME -->
+        <TextView
+            android:id="@+id/tv_temp_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="18:35 - 12/11/2024"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/primaryGreen" />
+
+        <!-- TEMPERATURE -->
+        <TextView
+            android:id="@+id/tv_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="28.5°C"
+            android:textSize="16sp"
+            android:textColor="#FF9800"
+            android:layout_marginTop="4dp" />
+
+        <!-- HUMIDITY -->
+        <TextView
+            android:id="@+id/tv_humid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="70%"
+            android:textSize="16sp"
+            android:textColor="#2196F3"
+            android:layout_marginTop="2dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

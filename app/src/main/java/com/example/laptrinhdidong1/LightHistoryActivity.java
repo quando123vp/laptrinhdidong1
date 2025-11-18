@@ -42,7 +42,8 @@ public class LightHistoryActivity extends AppCompatActivity {
         adapter = new LightHistoryAdapter(list);
         rv.setAdapter(adapter);
 
-        db = FirebaseDatabase.getInstance().getReference("LichSu");
+        // 🔥 CHỈ LẤY LichSu/AnhSang
+        db = FirebaseDatabase.getInstance().getReference("LichSu").child("AnhSang");
 
         loadData();
     }
@@ -51,7 +52,6 @@ public class LightHistoryActivity extends AppCompatActivity {
         db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
                 list.clear();
 
                 if (!snapshot.exists()) {
@@ -63,25 +63,32 @@ public class LightHistoryActivity extends AppCompatActivity {
                 tvNoData.setVisibility(View.GONE);
                 rv.setVisibility(View.VISIBLE);
 
+                // 🟢 Firebase dạng:
+                // LichSu
+                //   └── AnhSang
+                //          └── 2025-10-30_15-41-24
+                //                ├── PhanTram: 100
+                //                └── TrangThai: "Sáng"
+
                 for (DataSnapshot snap : snapshot.getChildren()) {
 
                     String time = snap.getKey();
+                    String status = snap.child("TrangThai").getValue(String.class);
 
-                    String st = snap.child("AnhSang/TrangThai").getValue(String.class);
-                    Long analog = snap.child("AnhSang/Analog").getValue(Long.class);
-
-                    if (st != null && analog != null) {
-                        list.add(new LightHistoryItem(time, st, analog.intValue()));
+                    if (status != null && time != null) {
+                        list.add(new LightHistoryItem(time, status));
                     }
                 }
 
+                // Đảo ngược: mới nhất lên đầu
                 Collections.reverse(list);
+
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(LightHistoryActivity.this, "Lỗi!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LightHistoryActivity.this, "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -42,13 +42,15 @@ public class SoilHistoryActivity extends AppCompatActivity {
         adapter = new SoilHistoryAdapter(list);
         rv.setAdapter(adapter);
 
-        db = FirebaseDatabase.getInstance().getReference("LichSu");
+        // ĐƯỜNG DẪN ĐÚNG TRONG FIREBASE
+        db = FirebaseDatabase.getInstance()
+                .getReference("CamBien").child("Dat").child("LichSu");
 
         loadData();
     }
 
     private void loadData() {
-        db.addListenerForSingleValueEvent(new ValueEventListener() {
+        db.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 list.clear();
@@ -64,15 +66,20 @@ public class SoilHistoryActivity extends AppCompatActivity {
 
                 for (DataSnapshot snap : snapshot.getChildren()) {
 
+                    // time = key
                     String time = snap.getKey();
-                    Long percent = snap.child("Dat").getValue(Long.class);
 
-                    if (percent != null) {
-                        list.add(new SoilHistoryItem(time, percent.intValue()));
-                    }
+                    // percent = snap.child("PhanTram")
+                    Double percent = snap.child("PhanTram").getValue(Double.class);
+
+                    if (percent == null) continue;
+
+                    list.add(new SoilHistoryItem(time, percent.intValue()));
                 }
 
+                // Đảo ngược cho mới nhất lên đầu
                 Collections.reverse(list);
+
                 adapter.notifyDataSetChanged();
             }
 

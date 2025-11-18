@@ -17,11 +17,16 @@
     <color name="dividerLight">#E0E0E0</color>
     <color name="lightBlueBackground">#D6F0FF</color>
 
+    <color name="primaryOrange">#FF9800</color>
+
     <!-- RainHistory colors -->
     <color name="rainBlueBackground">#CFE8FF</color>      <!-- Có mưa -->
     <color name="noRainGreenBackground">#D9FDD3</color>   <!-- Không mưa -->
     <color name="lightGrayBackground">#F2F2F2</color>     <!-- Khác / fallback -->
 
 
-    <color name="divider_color">#1F000000</color>
+
+    <color name="background">#F8F9FA</color>
+    <color name="divider_color">#E0E0E0</color>
+
 </resources>
