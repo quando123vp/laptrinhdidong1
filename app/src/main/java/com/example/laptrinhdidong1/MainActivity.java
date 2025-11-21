@@ -133,11 +133,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* ---------- Temperature ---------- */
+    // ✅ FIX NHIỆT ĐỘ — đọc giống y như độ ẩm, chống lỗi 100%
     private void updateTemperature(DataSnapshot snapshot) {
-        Double temp = toDouble(snapshot.child("NhietDo").getValue());
+        Object raw = snapshot.child("NhietDo").getValue();
         TextView tv = findViewById(R.id.tv_temp);
-        if (tv != null)
-            tv.setText(temp != null ? temp + "°C" : "--°C");
+
+        if (raw == null) {
+            tv.setText("--°C");
+            return;
+        }
+
+        try {
+            double temp = Double.parseDouble(raw.toString().trim());
+            tv.setText(temp + "°C");
+        } catch (Exception e) {
+            tv.setText("--°C");
+        }
     }
 
     /* ---------- Humidity ---------- */
@@ -205,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (v instanceof Long) return ((Long) v).doubleValue();
             if (v instanceof Double) return (Double) v;
-            if (v instanceof String) return Double.parseDouble((String) v);
+            if (v instanceof String) return Double.parseDouble(((String) v).trim());
         } catch (Exception ignored) { }
         return null;
     }
