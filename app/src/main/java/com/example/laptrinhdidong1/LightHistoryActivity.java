@@ -15,6 +15,7 @@ import com.google.firebase.database.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 public class LightHistoryActivity extends AppCompatActivity {
 
@@ -36,14 +37,16 @@ public class LightHistoryActivity extends AppCompatActivity {
         tvNoData = findViewById(R.id.tv_no_data);
         btnBack = findViewById(R.id.btnBack);
 
-        btnBack.setOnClickListener(v -> finish());
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
 
         rv.setLayoutManager(new LinearLayoutManager(this));
         adapter = new LightHistoryAdapter(list);
         rv.setAdapter(adapter);
 
-        // 🔥 CHỈ LẤY LichSu/AnhSang
-        db = FirebaseDatabase.getInstance().getReference("LichSu").child("AnhSang");
+        // --- SỬA LẠI: Trỏ vào node gốc LichSu (Giống Mưa và Đất) ---
+        db = FirebaseDatabase.getInstance().getReference("LichSu");
 
         loadData();
     }
@@ -55,35 +58,41 @@ public class LightHistoryActivity extends AppCompatActivity {
                 list.clear();
 
                 if (!snapshot.exists()) {
-                    tvNoData.setVisibility(View.VISIBLE);
-                    rv.setVisibility(View.GONE);
+                    updateUI();
                     return;
                 }
 
-                tvNoData.setVisibility(View.GONE);
-                rv.setVisibility(View.VISIBLE);
-
-                // 🟢 Firebase dạng:
-                // LichSu
-                //   └── AnhSang
-                //          └── 2025-10-30_15-41-24
-                //                ├── PhanTram: 100
-                //                └── TrangThai: "Sáng"
-
+                // Duyệt qua từng mốc thời gian (key là thời gian)
                 for (DataSnapshot snap : snapshot.getChildren()) {
+                    String time = snap.getKey(); // Ví dụ: 2025-10-30_15-41-24
 
-                    String time = snap.getKey();
-                    String status = snap.child("TrangThai").getValue(String.class);
+                    if (time == null) continue;
 
-                    if (status != null && time != null) {
-                        list.add(new LightHistoryItem(time, status));
+                    // --- SỬA LẠI: Tìm node AnhSang bên trong mốc thời gian ---
+                    // Cấu trúc mong đợi: LichSu -> [Time] -> AnhSang -> TrangThai
+
+                    String status = null;
+
+                    if (snap.hasChild("AnhSang") && snap.child("AnhSang").hasChild("TrangThai")) {
+                        status = snap.child("AnhSang").child("TrangThai").getValue(String.class);
                     }
+
+                    // Nếu không có dữ liệu ánh sáng ở mốc giờ này thì bỏ qua
+                    if (status == null) continue;
+
+                    list.add(new LightHistoryItem(time, status));
                 }
 
-                // Đảo ngược: mới nhất lên đầu
-                Collections.reverse(list);
+                // --- SẮP XẾP: Mới nhất lên đầu ---
+                Collections.sort(list, new Comparator<LightHistoryItem>() {
+                    @Override
+                    public int compare(LightHistoryItem o1, LightHistoryItem o2) {
+                        // So sánh chuỗi thời gian giảm dần
+                        return o2.time.compareTo(o1.time);
+                    }
+                });
 
-                adapter.notifyDataSetChanged();
+                updateUI();
             }
 
             @Override
@@ -91,5 +100,16 @@ public class LightHistoryActivity extends AppCompatActivity {
                 Toast.makeText(LightHistoryActivity.this, "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateUI() {
+        if (list.isEmpty()) {
+            tvNoData.setVisibility(View.VISIBLE);
+            rv.setVisibility(View.GONE);
+        } else {
+            tvNoData.setVisibility(View.GONE);
+            rv.setVisibility(View.VISIBLE);
+        }
+        adapter.notifyDataSetChanged();
     }
 }

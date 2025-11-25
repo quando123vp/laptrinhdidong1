@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -133,11 +132,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* ---------- Temperature ---------- */
-    // ✅ FIX NHIỆT ĐỘ — đọc giống y như độ ẩm, chống lỗi 100%
+    // ⭐ FIX CHUẨN NHẤT — khớp đúng XML: tv_temperature
     private void updateTemperature(DataSnapshot snapshot) {
-        Object raw = snapshot.child("NhietDo").getValue();
-        TextView tv = findViewById(R.id.tv_temp);
+        TextView tv = findViewById(R.id.tv_temperature);
+        if (tv == null) return;  // chống crash 100%
 
+        Object raw = snapshot.child("NhietDo").getValue();
         if (raw == null) {
             tv.setText("--°C");
             return;
@@ -153,60 +153,58 @@ public class MainActivity extends AppCompatActivity {
 
     /* ---------- Humidity ---------- */
     private void updateHumidity(DataSnapshot snapshot) {
-        Double hum = toDouble(snapshot.child("DoAm").getValue());
         TextView tv = findViewById(R.id.tv_humidity);
-        if (tv != null)
-            tv.setText(hum != null ? hum + "%" : "--%");
+        if (tv == null) return;
+
+        Double hum = toDouble(snapshot.child("DoAm").getValue());
+        tv.setText(hum != null ? hum + "%" : "--%");
     }
 
     /* ---------- Light ---------- */
     private void updateLight(DataSnapshot snapshot) {
-        Object val = snapshot.child("AnhSang").child("TrangThai").getValue();
         TextView tv = findViewById(R.id.tv_light_value);
-        if (tv != null)
-            tv.setText(val != null ? val.toString() : "--");
+        if (tv == null) return;
+
+        Object val = snapshot.child("AnhSang").child("TrangThai").getValue();
+        tv.setText(val != null ? val.toString() : "--");
     }
 
     /* ---------- Soil ---------- */
     private void updateSoil(DataSnapshot snapshot) {
-        Double soil = toDouble(snapshot.child("Dat").child("PhanTram").getValue());
         TextView tv = findViewById(R.id.tv_soil_value);
-        if (tv != null)
-            tv.setText(soil != null ? soil + "%" : "--%");
+        if (tv == null) return;
+
+        Double soil = toDouble(snapshot.child("Dat").child("PhanTram").getValue());
+        tv.setText(soil != null ? soil + "%" : "--%");
     }
 
     /* ---------- Rain ---------- */
     private void updateRain(DataSnapshot snapshot) {
-        Object val = snapshot.child("Mua").child("TrangThai").getValue();
         TextView tv = findViewById(R.id.tv_rain_value);
-        if (tv != null)
-            tv.setText(val != null ? val.toString() : "--");
+        if (tv == null) return;
+
+        Object val = snapshot.child("Mua").child("TrangThai").getValue();
+        tv.setText(val != null ? val.toString() : "--");
     }
 
     /* ===================== NAVIGATION ======================= */
     private void initNavigationCards() {
 
-        // 📌 Lịch sử đất
         findViewById(R.id.card_soil).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, SoilHistoryActivity.class)));
 
-        // 📌 Lịch sử nhiệt độ – độ ẩm
         findViewById(R.id.card_temp_humid).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, TempHumidHistoryActivity.class)));
 
-        // 📌 Lịch sử ánh sáng
         findViewById(R.id.card_light).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, LightHistoryActivity.class)));
 
-        // 📌 Lịch sử mưa
         findViewById(R.id.card_rain).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, RainHistoryActivity.class)));
 
-        // 🌊 Hệ thống bơm nước
         findViewById(R.id.card_pump).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, PumpSettingActivity.class)));
 
-        // 💡 Điều khiển đèn chiếu sáng
         findViewById(R.id.card_light_control).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, LightSettingActivity.class)));
     }

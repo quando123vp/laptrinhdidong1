@@ -30,7 +30,7 @@ public class SoilHistoryAdapter extends RecyclerView.Adapter<SoilHistoryAdapter.
         SoilHistoryItem it = list.get(i);
 
         h.tvTime.setText(it.time);
-        h.tvPercent.setText(it.percent + "%");
+        h.tvPercent.setText("Độ ẩm: "+it.percent + "%");
     }
 
     @Override

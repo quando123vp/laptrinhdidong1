@@ -31,8 +31,8 @@ public class TempHumidHistoryAdapter extends RecyclerView.Adapter<TempHumidHisto
         TempHumidHistoryItem it = list.get(i);
 
         h.tvTime.setText(it.time);
-        h.tvTemp.setText(String.format("%.1f°C", it.temp));
-        h.tvHumid.setText(String.format("%.1f%%", it.humid));
+        h.tvTemp.setText("Nhiệt độ: "+String.format("%.1f°C", it.temp));
+        h.tvHumid.setText("Độ ẩm: "+String.format("%.1f%%", it.humid));
     }
 
     @Override
