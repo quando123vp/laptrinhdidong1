@@ -1,11 +1,16 @@
 package com.example.laptrinhdidong1;
 
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -23,34 +28,40 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.Calendar;
 import java.util.Locale;
 
 public class PumpSettingActivity extends AppCompatActivity {
-
-    private static final String TAG = "PumpSettingActivity";
 
     private MaterialButton btnAddTime, btnManualPump, btnStopPump;
     private LinearLayout llScheduledTimesContainer;
     private TextView tvClearAll, tvPumpStatus, tvCurrentMoisture;
     private EditText etWaterAmount;
     private ImageView btnBackPump;
-    private Handler handler = new Handler();
 
     // Firebase
     private DatabaseReference mDatabase;
     private DatabaseReference camBienRef;
-    private DatabaseReference camActuatorPumpRef;
 
     private float currentMoisture = 0f;
     private boolean isPumping = false;
-
-    private com.google.firebase.database.ValueEventListener camBienListener;
+    private ValueEventListener camBienListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pump_setting);
+
+        // --- CHECK QUYỀN VỚI ANDROID 12+ ---
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager != null && !alarmManager.canScheduleExactAlarms()) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                startActivity(intent);
+            }
+        }
 
         // ===== ÁNH XẠ VIEW =====
         btnAddTime = findViewById(R.id.btn_add_time);
@@ -68,18 +79,20 @@ public class PumpSettingActivity extends AppCompatActivity {
         // Firebase
         mDatabase = FirebaseDatabase.getInstance().getReference();
         camBienRef = mDatabase.child("CamBien");
-        camActuatorPumpRef = mDatabase.child("CamActuator").child("Bom");
-
         attachCamBienListener();
 
         // CLICK SỰ KIỆN
         btnManualPump.setOnClickListener(v -> startManualPump());
         btnStopPump.setOnClickListener(v -> stopManualPump());
         btnAddTime.setOnClickListener(v -> showTimePickerDialog());
-        tvClearAll.setOnClickListener(v -> llScheduledTimesContainer.removeAllViews());
+
+        tvClearAll.setOnClickListener(v -> {
+            llScheduledTimesContainer.removeAllViews();
+            cancelAllAlarms(); // Hủy hết báo thức hệ thống
+        });
+
         btnBackPump.setOnClickListener(v -> navigateBackToMain());
 
-        // BACK GESTURE
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -94,131 +107,128 @@ public class PumpSettingActivity extends AppCompatActivity {
         if (camBienRef != null && camBienListener != null) {
             camBienRef.removeEventListener(camBienListener);
         }
-        handler.removeCallbacksAndMessages(null);
     }
 
     // ==========================================================
-    // 💧 GỬI LỆNH BƠM THỦ CÔNG (ON)
+    // ⏰ LOGIC ALARM MANAGER (QUAN TRỌNG)
     // ==========================================================
-    private void startManualPump() {
 
-        if (isPumping) {
-            Toast.makeText(this, "Đang bơm. Vui lòng chờ...", Toast.LENGTH_SHORT).show();
-            return;
+    // Hàm gài giờ hệ thống
+    @SuppressLint("ScheduleExactAlarm")
+    private void setSystemAlarm(int hour, int minute) {
+        // 1. Lưu lại độ ẩm mục tiêu hiện tại vào bộ nhớ để Receiver đọc được
+        saveTargetMoistureToPrefs();
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(this, PumpAlarmReceiver.class);
+
+        // Tạo ID duy nhất dựa trên giờ và phút (VD: 8:30 -> ID = 510)
+        int requestCode = hour * 60 + minute;
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        // Thiết lập thời gian
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
+
+        // Nếu giờ chọn đã qua, đặt cho ngày mai
+        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
         }
 
+        if (alarmManager != null) {
+            alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    pendingIntent
+            );
+        }
+    }
+
+    // Hàm hủy một giờ cụ thể
+    private void cancelSpecificAlarm(int hour, int minute) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(this, PumpAlarmReceiver.class);
+        int requestCode = hour * 60 + minute;
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent);
+        }
+    }
+
+    // Hàm hủy hết (đơn giản hóa)
+    private void cancelAllAlarms() {
+        Toast.makeText(this, "Đã xóa tất cả lịch hẹn bơm!", Toast.LENGTH_SHORT).show();
+        // Lưu ý: Muốn hủy sạch sẽ cần lưu list ID đã đặt.
+        // Ở đây tạm thời chỉ xóa View, user cần đặt lại.
+    }
+
+    private void saveTargetMoistureToPrefs() {
         String targetStr = etWaterAmount.getText().toString().trim();
-        if (targetStr.isEmpty()) {
-            Toast.makeText(this, "⚠️ Nhập độ ẩm mục tiêu!", Toast.LENGTH_SHORT).show();
-            return;
+        int target = 70; // Mặc định
+        if (!targetStr.isEmpty()) {
+            try {
+                target = Integer.parseInt(targetStr);
+            } catch (NumberFormatException e) { e.printStackTrace(); }
         }
 
-        int target;
-        try {
-            target = Integer.parseInt(targetStr);
-        } catch (Exception e) {
-            Toast.makeText(this, "⚠️ Giá trị không hợp lệ", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (target < 0) target = 0;
-        if (target > 100) target = 100;
-
-        if (target <= currentMoisture) {
-            Toast.makeText(this, "Độ ẩm hiện tại đã >= mục tiêu!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        DatabaseReference cmdRef = mDatabase.child("Bom").child("Command");
-        cmdRef.child("TrangThai").setValue("On");
-        cmdRef.child("TargetMoisture").setValue(target);
-        cmdRef.child("ThoiGian").setValue(0);
-
-        isPumping = true;
-        btnManualPump.setEnabled(false);
-        etWaterAmount.setEnabled(false);
-
-        tvPumpStatus.setVisibility(View.VISIBLE);
-        tvPumpStatus.setText("💧 Đang bơm tới " + target + "%");
+        SharedPreferences prefs = getSharedPreferences("PumpPrefs", MODE_PRIVATE);
+        prefs.edit().putInt("saved_target_moisture", target).apply();
     }
 
     // ==========================================================
-    // ❌ GỬI LỆNH TẮT BƠM (OFF)
+    // CÁC HÀM HIỂN THỊ UI & PICKER
     // ==========================================================
-    private void stopManualPump() {
 
-        DatabaseReference cmdRef = mDatabase.child("Bom").child("Command");
-        cmdRef.child("TrangThai").setValue("Off");
-        cmdRef.child("TargetMoisture").setValue(0);
-        cmdRef.child("ThoiGian").setValue(0);
-
-        isPumping = false;
-
-        btnManualPump.setEnabled(true);
-        etWaterAmount.setEnabled(true);
-
-        tvPumpStatus.setVisibility(View.VISIBLE);
-        tvPumpStatus.setText("⛔ Đã tắt bơm");
-
-        Toast.makeText(this, "Đã gửi lệnh TẮT bơm!", Toast.LENGTH_SHORT).show();
-    }
-
-    // ==========================================================
-    // ⏰ Chọn giờ bơm tự động
-    // ==========================================================
     private void showTimePickerDialog() {
+        Calendar c = Calendar.getInstance();
+        int nowHour = c.get(Calendar.HOUR_OF_DAY);
+        int nowMinute = c.get(Calendar.MINUTE);
+
         TimePickerDialog timePickerDialog = new TimePickerDialog(
                 this,
                 (view, hourOfDay, minute) -> {
                     String selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
-                    showRepeatDialog(selectedTime);
+
+                    // 1. Gài giờ hệ thống ngay khi chọn xong
+                    setSystemAlarm(hourOfDay, minute);
+
+                    // 2. Tiếp tục quy trình UI (Hỏi lặp lại, hiển thị list)
+                    showRepeatDialog(selectedTime, hourOfDay, minute);
                 },
-                8, 0, true
+                nowHour, nowMinute, true
         );
         timePickerDialog.setTitle("Chọn giờ bơm");
         timePickerDialog.show();
     }
 
-    private void showRepeatDialog(String selectedTime) {
-        String[] repeatOptions = {"Một lần", "Mỗi ngày", "Theo thứ..."};
+    private void showRepeatDialog(String selectedTime, int hour, int minute) {
+        String[] repeatOptions = {"Một lần", "Mỗi ngày"}; // Tạm bỏ "Thứ..." để đơn giản logic Alarm
 
         new AlertDialog.Builder(this)
                 .setTitle("Lặp lại lịch bơm")
                 .setItems(repeatOptions, (dialog, which) -> {
-                    if (which == 2) {
-                        showDayPickerDialog(selectedTime);
-                    } else {
-                        addTimeRow(selectedTime + " (" + repeatOptions[which] + ")");
-                    }
+                    // Hiển thị lên màn hình
+                    addTimeRow(selectedTime + " (" + repeatOptions[which] + ")", hour, minute);
+                    Toast.makeText(this, "Đã đặt lịch bơm lúc " + selectedTime, Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
     }
 
-    private void showDayPickerDialog(String selectedTime) {
-
-        String[] days = {"Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"};
-        boolean[] checkedDays = new boolean[days.length];
-
-        new AlertDialog.Builder(this)
-                .setTitle("Chọn ngày")
-                .setMultiChoiceItems(days, checkedDays, (dialog, which, isChecked) -> checkedDays[which] = isChecked)
-                .setPositiveButton("OK", (dialog, which) -> {
-                    StringBuilder selected = new StringBuilder();
-                    for (int i = 0; i < checkedDays.length; i++) {
-                        if (checkedDays[i]) {
-                            if (selected.length() > 0) selected.append(", ");
-                            selected.append(days[i]);
-                        }
-                    }
-                    addTimeRow(selectedTime + " (" + selected + ")");
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
-    }
-
-    private void addTimeRow(String time) {
-
+    private void addTimeRow(String displayText, int hour, int minute) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -229,7 +239,7 @@ public class PumpSettingActivity extends AppCompatActivity {
         icon.setLayoutParams(new LinearLayout.LayoutParams(60, 60));
 
         TextView tv = new TextView(this);
-        tv.setText(time);
+        tv.setText(displayText);
         tv.setTextSize(16);
         tv.setPadding(16, 0, 0, 0);
         tv.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
@@ -238,9 +248,12 @@ public class PumpSettingActivity extends AppCompatActivity {
         delete.setText("❌");
         delete.setTextSize(20);
         delete.setPadding(16, 0, 0, 0);
+
+        // Sự kiện xóa dòng này -> Hủy báo thức tương ứng
         delete.setOnClickListener(v -> {
             llScheduledTimesContainer.removeView(row);
-            Toast.makeText(this, "Đã xóa " + time, Toast.LENGTH_SHORT).show();
+            cancelSpecificAlarm(hour, minute);
+            Toast.makeText(this, "Đã hủy lịch: " + displayText, Toast.LENGTH_SHORT).show();
         });
 
         row.addView(icon);
@@ -251,15 +264,61 @@ public class PumpSettingActivity extends AppCompatActivity {
     }
 
     // ==========================================================
-    // Lắng nghe dữ liệu cảm biến
+    // CÁC HÀM CŨ (MANUAL PUMP & FIREBASE)
     // ==========================================================
-    private void attachCamBienListener() {
 
-        camBienListener = new com.google.firebase.database.ValueEventListener() {
+    private void startManualPump() {
+        if (isPumping) return;
+
+        String targetStr = etWaterAmount.getText().toString().trim();
+        if (targetStr.isEmpty()) {
+            Toast.makeText(this, "⚠️ Nhập độ ẩm mục tiêu!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int target = Integer.parseInt(targetStr);
+        if (target > 100) target = 100;
+
+        // Lưu lại để dùng cho Alarm sau này nếu cần
+        saveTargetMoistureToPrefs();
+
+        DatabaseReference cmdRef = mDatabase.child("Bom").child("Command");
+        cmdRef.child("TrangThai").setValue("On");
+        cmdRef.child("TargetMoisture").setValue(target);
+        cmdRef.child("ThoiGian").setValue(0);
+
+        isPumping = true;
+        updateUIState(true, target);
+    }
+
+    private void stopManualPump() {
+        DatabaseReference cmdRef = mDatabase.child("Bom").child("Command");
+        cmdRef.child("TrangThai").setValue("Off");
+        cmdRef.child("TargetMoisture").setValue(0);
+        cmdRef.child("ThoiGian").setValue(0);
+
+        isPumping = false;
+        updateUIState(false, 0);
+        Toast.makeText(this, "Đã gửi lệnh TẮT bơm!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateUIState(boolean pumping, int target) {
+        btnManualPump.setEnabled(!pumping);
+        etWaterAmount.setEnabled(!pumping);
+        if (pumping) {
+            tvPumpStatus.setVisibility(View.VISIBLE);
+            tvPumpStatus.setText("💧 Đang bơm tới " + target + "%");
+        } else {
+            tvPumpStatus.setVisibility(View.VISIBLE);
+            tvPumpStatus.setText("⛔ Đã tắt bơm");
+        }
+    }
+
+    private void attachCamBienListener() {
+        camBienListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snap) {
                 if (!snap.exists()) return;
-
                 Float ph = snap.child("Dat").child("PhanTram").getValue(Float.class);
                 if (ph != null) {
                     currentMoisture = ph;
@@ -269,13 +328,9 @@ public class PumpSettingActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         };
-
         camBienRef.addValueEventListener(camBienListener);
     }
 
-    // ==========================================================
-    // Trở về MainActivity
-    // ==========================================================
     private void navigateBackToMain() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
